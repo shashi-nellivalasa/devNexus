@@ -525,7 +525,7 @@ import { parseCurlCommand } from '../../../shared/utils/curl-import.util';
                   </div>
 
                   <button type="button" class="btn btn-sm btn-outline-secondary p-1" (click)="copyResponseBody()" title="Copy response">
-                    <i class="bi bi-clipboard"></i>
+                    <i class="bi bi-copy"></i>
                   </button>
                   <button type="button" class="btn btn-sm btn-outline-secondary p-1" (click)="downloadResponse()" title="Download response">
                     <i class="bi bi-download"></i>

@@ -88,15 +88,34 @@ describe('DevNexus Application & Tool Engine Tests', () => {
     expect(parsed?.body?.type).toBe('json');
   });
 
-  it('should prettify minified JS and CSS build chunks', async () => {
-    const { formatChunk } = await import('./shared/utils/chunk-formatter.util');
-    const jsRes = formatChunk('var a=1;function f(x){return x+1;}export{f};', {
+  it('should prettify, minify, and validate JS, CSS, HTML, and JSON build chunks', async () => {
+    const { formatChunk, processChunk, validateChunkSyntax } = await import(
+      './shared/utils/chunk-formatter.util'
+    );
+
+    const sampleJs =
+      'import{a as e,b as t}from"./chunk.js";class R{static ɵfac=()=>new R();static ɵprov=e({token:R,factory:R.ɵfac,providedIn:"root"})}export{R};';
+    const jsRes = formatChunk(sampleJs, {
       language: 'auto',
       indentSize: 2
     });
     expect(jsRes.detectedLanguage).toBe('javascript');
     expect(jsRes.formattedLines).toBeGreaterThan(3);
-    expect(jsRes.formatted).toContain('function f(x) {');
+    expect(jsRes.formatted).toContain('static ɵfac =');
+    expect(jsRes.formatted).toContain('factory: R.ɵfac');
+    expect(validateChunkSyntax(jsRes.formatted, 'javascript').valid).toBeTrue();
+
+    const jsMin = processChunk(jsRes.formatted, {
+      language: 'javascript',
+      indentSize: 2,
+      mode: 'minify'
+    });
+    expect(jsMin.output).toContain('static ɵfac=');
+    expect(validateChunkSyntax(jsMin.output, 'javascript').valid).toBeTrue();
+
+    const badJs = validateChunkSyntax('function f(x) { return x + 1;', 'javascript');
+    expect(badJs.valid).toBeFalse();
+    expect(badJs.errors[0].line).toBe(1);
 
     const cssRes = formatChunk('.btn{color:#fff;padding:4px 8px;}', {
       language: 'auto',
@@ -104,6 +123,39 @@ describe('DevNexus Application & Tool Engine Tests', () => {
     });
     expect(cssRes.detectedLanguage).toBe('css');
     expect(cssRes.formatted).toContain('  color: #fff;');
+    const cssMin = processChunk(cssRes.formatted, { language: 'css', indentSize: 2, mode: 'minify' });
+    expect(cssMin.output).toBe('.btn{color:#fff;padding:4px 8px}');
+    expect(validateChunkSyntax('.btn{color red;}', 'css').valid).toBeFalse();
+
+    expect(validateChunkSyntax('<div><span>ok</span></div>', 'html').valid).toBeTrue();
+    expect(validateChunkSyntax('<div><span>ok</div>', 'html').valid).toBeFalse();
+
+    const jsonMin = processChunk('{\n  "a": 1\n}', { language: 'json', indentSize: 2, mode: 'minify' });
+    expect(jsonMin.output).toBe('{"a":1}');
+    expect(validateChunkSyntax('{"a": }', 'json').valid).toBeFalse();
+
+    const { ChunkFormatterComponent } = await import(
+      './features/code-tools/chunk-formatter/chunk-formatter.component'
+    );
+    const chunkFixture = TestBed.createComponent(ChunkFormatterComponent);
+    chunkFixture.detectChanges();
+    expect(chunkFixture.componentInstance.inputValidation?.valid).toBeTrue();
+    expect(chunkFixture.componentInstance.outputValidation?.valid).toBeTrue();
+    expect(chunkFixture.componentInstance.allErrors.length).toBe(0);
+  });
+
+  it('should load and compile TypeScript inside TypescriptPlaygroundComponent in browser', async () => {
+    const { TypescriptPlaygroundComponent } = await import(
+      './features/code-tools/typescript-playground/typescript-playground.component'
+    );
+    const fixture = TestBed.createComponent(TypescriptPlaygroundComponent);
+    const comp = fixture.componentInstance;
+    await comp.ensureCompilerLoaded();
+    comp.inputTs = 'const greet = (name: string): string => `Hello ${name}`;';
+    comp.compile();
+    expect(comp.compilationError).toBe('');
+    expect(comp.outputJs).toContain('const greet');
+    expect(comp.outputJs).not.toContain(': string');
   });
 
   it('should parse OpenAPI specification document correctly', () => {

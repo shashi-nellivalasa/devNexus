@@ -4,7 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { ToolHeaderComponent } from '../../../shared/components/tool-header/tool-header.component';
 import { CodeEditorComponent } from '../../../shared/components/code-editor/code-editor.component';
 import { NotificationService } from '../../../core/services/notification.service';
-import * as ts from 'typescript';
+import type * as tsTypes from 'typescript';
+
+type TsModule = typeof tsTypes;
+let compilerLoadPromise: Promise<TsModule> | null = null;
 
 @Component({
   selector: 'app-typescript-playground',
@@ -66,9 +69,9 @@ import * as ts from 'typescript';
               <i class="bi bi-play-circle-fill"></i>
               <span>Run in Console</span>
             </button>
-            <button type="button" class="btn btn-sm btn-accent d-flex align-items-center gap-1" (click)="compile()">
+            <button type="button" class="btn btn-sm btn-accent d-flex align-items-center gap-1" (click)="compile()" [disabled]="isLoadingCompiler">
               <i class="bi bi-lightning-charge-fill"></i>
-              <span>Compile</span>
+              <span>{{ isLoadingCompiler ? 'Loading TS...' : 'Compile' }}</span>
             </button>
           </div>
         </div>
@@ -134,7 +137,10 @@ export class TypescriptPlaygroundComponent implements OnInit {
   public moduleFormat = 'ESNext';
   public removeComments = false;
   public compilationError = '';
+  public isLoadingCompiler = false;
   public consoleLogs: string[] = [];
+
+  private tsCompiler: TsModule | null = null;
 
   ngOnInit(): void {
     this.loadSampleData();
@@ -145,12 +151,61 @@ export class TypescriptPlaygroundComponent implements OnInit {
     this.compile();
   }
 
+  async ensureCompilerLoaded(): Promise<TsModule> {
+    if (this.tsCompiler) return this.tsCompiler;
+    const globalTs = (window as any).ts as TsModule | undefined;
+    if (globalTs?.transpileModule) {
+      this.tsCompiler = globalTs;
+      return globalTs;
+    }
+
+    this.isLoadingCompiler = true;
+    try {
+      if (!compilerLoadPromise) {
+        compilerLoadPromise = new Promise<TsModule>((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = new URL('vendor/typescript/typescript.js', document.baseURI).toString();
+          script.async = true;
+          script.onload = () => {
+            const loaded = (window as any).ts as TsModule | undefined;
+            if (loaded?.transpileModule) {
+              resolve(loaded);
+            } else {
+              compilerLoadPromise = null;
+              reject(new Error('TypeScript compiler global not initialized'));
+            }
+          };
+          script.onerror = () => {
+            compilerLoadPromise = null;
+            reject(new Error('Failed to load TypeScript compiler script'));
+          };
+          document.head.appendChild(script);
+        });
+      }
+      this.tsCompiler = await compilerLoadPromise;
+      return this.tsCompiler;
+    } finally {
+      this.isLoadingCompiler = false;
+    }
+  }
+
   compile(): void {
     this.compilationError = '';
     if (!this.inputTs.trim()) {
       this.outputJs = '';
       return;
     }
+
+    const ts = this.tsCompiler ?? ((window as any).ts as TsModule | undefined);
+    if (!ts?.transpileModule) {
+      void this.ensureCompilerLoaded()
+        .then(() => this.compile())
+        .catch((err: any) => {
+          this.compilationError = `TypeScript Compiler Load Error: ${err?.message || 'Unable to load compiler'}`;
+        });
+      return;
+    }
+    this.tsCompiler = ts;
 
     try {
       let target = ts.ScriptTarget.ES2022;

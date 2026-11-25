@@ -70,7 +70,7 @@ import { NotificationService } from '../../../core/services/notification.service
               (click)="triggerCopy()"
               title="Copy output to clipboard"
             >
-              <i class="bi bi-clipboard"></i>
+              <i class="bi bi-copy"></i>
               <span>Copy</span>
             </button>
           }

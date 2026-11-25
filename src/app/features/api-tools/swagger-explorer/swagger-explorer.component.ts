@@ -298,7 +298,7 @@ interface EndpointExecutionState {
                               class="btn btn-sm btn-outline-secondary py-0 px-2 small"
                               (click)="copyResponse(resp.body)"
                             >
-                              <i class="bi bi-clipboard me-1"></i> Copy
+                              <i class="bi bi-copy me-1"></i> Copy
                             </button>
                           </div>
 

@@ -6,6 +6,15 @@ import { ThemeService } from '../../../core/services/theme.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import loader from '@monaco-editor/loader';
 
+export interface EditorMarker {
+  message: string;
+  line: number;
+  column: number;
+  endLine?: number;
+  endColumn?: number;
+  severity?: 'error' | 'warning';
+}
+
 @Component({
   selector: 'app-code-editor',
   standalone: true,
@@ -50,7 +59,7 @@ import loader from '@monaco-editor/loader';
               (click)="copyContent()"
               title="Copy to clipboard"
             >
-              <i class="bi bi-clipboard"></i>
+              <i class="bi bi-copy"></i>
             </button>
           }
 
@@ -155,6 +164,7 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() downloadable = false;
   @Input() downloadFilename = 'file.txt';
   @Input() showClear = true;
+  @Input() markers: EditorMarker[] = [];
 
   @Output() valueChange = new EventEmitter<string>();
 
@@ -164,6 +174,7 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy {
   public isMonacoReady = false;
   private monacoEditorInstance: any = null;
   private resizeObserver: ResizeObserver | null = null;
+  private isSettingProgrammatically = false;
 
   private storageService = inject(StorageService);
   private themeService = inject(ThemeService);
@@ -214,7 +225,12 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.currentValue = newVal;
         if (this.monacoEditorInstance && this.isMonacoReady) {
           if (this.monacoEditorInstance.getValue() !== newVal) {
-            this.monacoEditorInstance.setValue(newVal);
+            this.isSettingProgrammatically = true;
+            try {
+              this.monacoEditorInstance.setValue(newVal);
+            } finally {
+              this.isSettingProgrammatically = false;
+            }
             setTimeout(() => {
               if (this.monacoEditorInstance) {
                 this.monacoEditorInstance.layout();
@@ -230,6 +246,14 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy {
       if (monaco?.editor) {
         monaco.editor.setModelLanguage(this.monacoEditorInstance.getModel(), this.normalizeLanguage(this.language));
       }
+    }
+
+    if (changes['readOnly'] && this.monacoEditorInstance && this.isMonacoReady) {
+      this.monacoEditorInstance.updateOptions({ readOnly: this.readOnly });
+    }
+
+    if (changes['markers'] && this.monacoEditorInstance && this.isMonacoReady) {
+      this.applyMarkers();
     }
   }
 
@@ -297,12 +321,14 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy {
       });
 
       this.monacoEditorInstance.onDidChangeModelContent(() => {
+        if (this.isSettingProgrammatically) return;
         const val = this.monacoEditorInstance.getValue();
         this.currentValue = val;
         this.valueChange.emit(val);
       });
 
       this.isMonacoReady = true;
+      this.applyMarkers();
 
       setTimeout(() => {
         if (this.monacoEditorInstance) {
@@ -348,6 +374,24 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  private applyMarkers(): void {
+    const monaco = (window as any).monaco;
+    const model = this.monacoEditorInstance?.getModel();
+    if (!monaco?.editor || !model) return;
+
+    const mapped = (this.markers || []).map(m => ({
+      severity: m.severity === 'warning'
+        ? monaco.MarkerSeverity.Warning
+        : monaco.MarkerSeverity.Error,
+      message: m.message,
+      startLineNumber: Math.max(1, m.line),
+      startColumn: Math.max(1, m.column),
+      endLineNumber: Math.max(1, m.endLine || m.line),
+      endColumn: Math.max(1, m.endColumn || m.column + 1)
+    }));
+    monaco.editor.setModelMarkers(model, 'devnexus-validator', mapped);
+  }
+
   public onTextareaChange(val: string): void {
     this.currentValue = val;
     this.valueChange.emit(val);
@@ -356,7 +400,12 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy {
   public clearContent(): void {
     this.currentValue = '';
     if (this.monacoEditorInstance && this.isMonacoReady) {
-      this.monacoEditorInstance.setValue('');
+      this.isSettingProgrammatically = true;
+      try {
+        this.monacoEditorInstance.setValue('');
+      } finally {
+        this.isSettingProgrammatically = false;
+      }
     }
     this.valueChange.emit('');
   }

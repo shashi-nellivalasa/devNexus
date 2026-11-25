@@ -172,7 +172,7 @@ interface GeneratedGitResult {
             <span>Generated Command Line</span>
           </span>
           <button type="button" class="btn btn-sm btn-accent d-flex align-items-center gap-1" (click)="copyCommand()">
-            <i class="bi bi-clipboard"></i>
+            <i class="bi bi-copy"></i>
             <span>Copy Command</span>
           </button>
         </div>

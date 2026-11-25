@@ -178,14 +178,14 @@ export class ToolRegistryService {
     },
     {
       id: 'chunk-formatter',
-      name: 'Build Chunk Formatter (Prettifier)',
+      name: 'Build Chunk Formatter & Minifier',
       shortName: 'Chunk Formatter',
-      description: 'Prettify minified Angular, Vite, or Webpack build chunks (JS, CSS, HTML, JSON) with file upload and auto-detection.',
+      description: 'Prettify, edit, validate syntax, and minify Angular, Vite, or Webpack build chunks (JS, CSS, HTML, JSON).',
       category: 'code',
       categoryLabel: 'Code Tools',
       icon: 'bi-file-earmark-code',
       route: '/tools/chunk-formatter',
-      keywords: ['chunk', 'prettify', 'beautify', 'format', 'angular', 'bundle', 'minified', 'js', 'css'],
+      keywords: ['chunk', 'prettify', 'beautify', 'format', 'minify', 'validate', 'syntax', 'angular', 'bundle', 'minified', 'js', 'css'],
       badge: 'New'
     },
     {
