@@ -46,6 +46,7 @@
           },
           "configurations": {
             "production": {
+              "baseHref": "/devNexus/",
               "budgets": [
                 {
                   "type": "initial",
