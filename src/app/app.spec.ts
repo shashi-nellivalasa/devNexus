@@ -183,4 +183,34 @@ describe('DevNexus Application & Tool Engine Tests', () => {
     expect(parsed.endpoints[0].method).toBe('GET');
     expect(parsed.endpoints[0].path).toBe('/users');
   });
+
+  it('should parse PDF page ranges and build valid multi-page PDF bytes from JPEG images', async () => {
+    const {
+      parsePageRange,
+      getPageDimensionsPt,
+      buildPdfFromJpegImages
+    } = await import('./shared/utils/pdf-image.util');
+
+    expect(parsePageRange('all', 4)).toEqual([1, 2, 3, 4]);
+    expect(parsePageRange('1-2, 4, 99', 5)).toEqual([1, 2, 4]);
+    expect(parsePageRange('', 3)).toEqual([1, 2, 3]);
+
+    expect(getPageDimensionsPt(1200, 800, 'a4', 'auto', 24)).toEqual({ widthPt: 841.89, heightPt: 595.28 });
+    expect(getPageDimensionsPt(800, 1200, 'a4', 'auto', 24)).toEqual({ widthPt: 595.28, heightPt: 841.89 });
+
+    const dummyJpeg = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0xff, 0xd9]);
+    const pdfBytes = buildPdfFromJpegImages(
+      [
+        { name: 'p1.jpg', widthPx: 800, heightPx: 600, jpegBytes: dummyJpeg },
+        { name: 'p2.jpg', widthPx: 600, heightPx: 800, jpegBytes: dummyJpeg }
+      ],
+      { pageSize: 'a4', orientation: 'auto', marginPt: 24 }
+    );
+
+    const pdfText = new TextDecoder().decode(pdfBytes);
+    expect(pdfText.startsWith('%PDF-1.4')).toBeTrue();
+    expect(pdfText).toContain('/Count 2');
+    expect(pdfText).toContain('/Filter /DCTDecode');
+    expect(pdfText.trim().endsWith('%%EOF')).toBeTrue();
+  });
 });

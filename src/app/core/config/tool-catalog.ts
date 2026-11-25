@@ -20,6 +20,7 @@ export const REGISTERED_TOOL_IDS = [
   'jwt-decoder',
   'markdown-preview',
   'mock-data',
+  'pdf-image-converter',
   'regex-tester',
   'sql-formatter',
   'string-escape',

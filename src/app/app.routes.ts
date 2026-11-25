@@ -95,6 +95,10 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'tools/pdf-image-converter',
+    loadComponent: () => import('./features/generators/pdf-image-converter/pdf-image-converter.component').then(m => m.PdfImageConverterComponent)
+  },
+  {
     path: 'settings',
     loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent)
   },

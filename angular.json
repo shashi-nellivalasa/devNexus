@@ -36,6 +36,11 @@
                 "glob": "typescript.js",
                 "input": "node_modules/typescript/lib",
                 "output": "vendor/typescript"
+              },
+              {
+                "glob": "pdf.worker.min.mjs",
+                "input": "node_modules/pdfjs-dist/build",
+                "output": "vendor/pdfjs"
               }
             ],
             "styles": [
@@ -103,6 +108,11 @@
                 "glob": "typescript.js",
                 "input": "node_modules/typescript/lib",
                 "output": "vendor/typescript"
+              },
+              {
+                "glob": "pdf.worker.min.mjs",
+                "input": "node_modules/pdfjs-dist/build",
+                "output": "vendor/pdfjs"
               }
             ],
             "styles": [

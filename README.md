@@ -28,14 +28,15 @@ All utilities run directly in the browser—your sensitive data, tokens, and pay
 
 ---
 
-## 🧰 Utility Matrix (21 Built-in Tools)
+## 🧰 Utility Matrix (24 Built-in Tools)
 
-Tools are grouped into **API** (2), **JSON** (7), **String** (4), **Code** (6), and **Generators** (2). The **Settings** page (`/settings`) is separate from the tool registry. The canonical ID list lives in `src/app/core/config/tool-catalog.ts` and is kept in sync with `ToolRegistryService` and `app.routes.ts`.
+Tools are grouped into **API** (3), **JSON** (7), **String** (4), **Code** (7), and **Generators** (3). The **Settings** page (`/settings`) is separate from the tool registry. The canonical ID list lives in `src/app/core/config/tool-catalog.ts` and is kept in sync with `ToolRegistryService` and `app.routes.ts`.
 
 ### 1. API Testing & Documentation
 | Tool | Route | Description |
 | :--- | :--- | :--- |
-| **Advanced API Tester** | `/tools/api-tester` | Postman-inspired HTTP client supporting `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `OPTIONS`, query parameters, custom headers, Auth (Bearer, Basic, API Key), Body payloads (JSON, text, XML), `{{variable}}` environments (from Settings), cURL import, response headers/metrics, and IndexedDB collections & history. |
+| **Advanced API Tester** | `/tools/api-tester` | Postman-inspired HTTP client supporting `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `OPTIONS`, query parameters, custom headers, Auth (Bearer, Basic, API Key), Body payloads (JSON, text, XML), `{{variable}}` environments (from Settings), cURL import, status/body/JSONPath/response-time assertions, multi-request **Test Runner & Reports** (JSON/Markdown export), and IndexedDB collections & history. |
+| **API Flow Builder** | `/tools/api-flow-builder` | Visual request chaining tool: execute multi-step API sequences (e.g., Login → Extract Token → Authenticated Request), capture JSONPath/header/status variables, and gate steps with conditional execution rules. |
 | **Swagger / OpenAPI Explorer** | `/tools/swagger-explorer` | OpenAPI 3.x and Swagger 2.0 explorer supporting URL, file, and pasted imports. Groups endpoints by tags, renders parameter schemas, executes live **Try It Out** requests, and allows 1-click transfer to API Tester. |
 
 ### 2. JSON Utilities
@@ -63,6 +64,7 @@ Tools are grouped into **API** (2), **JSON** (7), **String** (4), **Code** (6), 
 | **Regex Tester & Evaluator** | `/tools/regex-tester` | Live pattern evaluator with real-time match highlighting, capture group table, execution time stats, flags (`g`, `i`, `m`, `s`, `u`), and presets (Email, URL, IPv4, Date, Hex, UUID). |
 | **Code Diff Viewer** | `/tools/code-diff` | Side-by-side split and unified code comparison with additions/deletions badges and unified patch download. |
 | **Code Minifier (JS / CSS / HTML)** | `/tools/code-minifier` | Strips comments, collapses whitespace, optimizes delimiters, and calculates compression reduction percentages. |
+| **Build Chunk Formatter & Minifier** | `/tools/chunk-formatter` | Prettify, edit, validate syntax, and minify Angular, Vite, or Webpack build chunks (JS, CSS, HTML, JSON). |
 | **TypeScript Playground** | `/tools/typescript-playground` | In-browser Monaco editor with live transpilation via the TypeScript Compiler API, compiler target selection (ES5 to ESNext), and sandboxed execution output. |
 | **SQL Formatter** | `/tools/sql-formatter` | SQL query formatter and beautifier with keyword casing options (UPPERCASE/lowercase), indentation control, and minification. |
 | **Markdown Live Preview** | `/tools/markdown-preview` | GitHub-flavored Markdown editor with live preview, syntax-highlighted code blocks, tables, task lists, and HTML export. |
@@ -72,6 +74,7 @@ Tools are grouped into **API** (2), **JSON** (7), **String** (4), **Code** (6), 
 | :--- | :--- | :--- |
 | **Mock Data Generator** | `/tools/mock-data` | Schema-driven synthesis for Users, Employees, Products, Transactions, Orders, or custom fields exported to JSON or CSV. |
 | **Git Command Generator** | `/tools/git-generator` | Interactive builder for branching, committing, rebasing, cherry-picking, resetting, and stashing with educational step-by-step explanations. |
+| **PDF ↔ Image Converter** | `/tools/pdf-image-converter` | Client-side converter to render PDF pages into PNG, JPEG, or WebP images (individual or ZIP download) and combine multiple images into a downloadable multi-page PDF. |
 
 ### Settings & backup
 

@@ -246,6 +246,18 @@ export class ToolRegistryService {
       route: '/tools/git-generator',
       keywords: ['git', 'command', 'branch', 'rebase', 'merge', 'cherry-pick', 'stash', 'reset']
     },
+    {
+      id: 'pdf-image-converter',
+      name: 'PDF ↔ Image Converter',
+      shortName: 'PDF ↔ Image',
+      description: 'Convert PDF pages to PNG, JPEG, or WebP images (single or ZIP download) and combine multiple images into a downloadable PDF.',
+      category: 'generators',
+      categoryLabel: 'Generators',
+      icon: 'bi-file-earmark-pdf',
+      route: '/tools/pdf-image-converter',
+      keywords: ['pdf', 'image', 'png', 'jpg', 'jpeg', 'webp', 'convert', 'zip', 'download', 'merge'],
+      badge: 'New'
+    },
 
     // ---------------- API Tools ----------------
     {
