@@ -1,0 +1,71 @@
+<div class="app-layout d-flex flex-column vh-100 overflow-hidden">
+  <!-- Top Global Header -->
+  <app-header (toggleMobileSidebar)="toggleMobileSidebar()"></app-header>
+
+  <!-- Body Content: Desktop Sidebar + Main Workspace -->
+  <div class="app-body d-flex flex-grow-1 overflow-hidden position-relative">
+    <!-- Desktop Sidebar -->
+    <div class="d-none d-md-block h-100 flex-shrink-0">
+      <app-sidebar></app-sidebar>
+    </div>
+
+    <!-- Mobile Drawer Sidebar Backdrop & Panel -->
+    @if (isMobileSidebarOpen()) {
+      <div
+        class="mobile-sidebar-backdrop position-fixed top-0 start-0 w-100 h-100 z-3"
+        (click)="closeMobileSidebar()"
+        style="background: rgba(3, 4, 7, 0.7); backdrop-filter: blur(4px);"
+      ></div>
+      <div
+        class="mobile-sidebar-drawer position-fixed top-0 start-0 h-100 z-3 shadow-lg"
+        style="width: 280px; background: var(--dn-surface-card);"
+      >
+        <app-sidebar [isMobile]="true" (navigate)="closeMobileSidebar()"></app-sidebar>
+      </div>
+    }
+
+    <!-- Main workspace column (footer scrolls with page, not under sidebar) -->
+    <div class="app-workspace-column flex-grow-1 d-flex flex-column min-w-0 min-h-0">
+      <main class="app-main-workspace flex-grow-1 overflow-auto position-relative">
+        <div class="app-page-flow">
+          <router-outlet></router-outlet>
+          <app-footer></app-footer>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Global Command Palette Modal (Ctrl + K) -->
+  <app-command-palette></app-command-palette>
+
+  <!-- Global Modal Container -->
+  <app-modal-container></app-modal-container>
+
+  <!-- Floating Toast Notifications -->
+  <div class="toast-container position-fixed end-0 p-3 z-3 app-toast-stack" style="max-width: 380px;">
+    @for (toast of notifyService.toasts(); track toast.id) {
+      <div
+        class="toast show dn-card text-light border border-secondary border-opacity-50 mb-2 shadow-lg"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div class="toast-header border-bottom border-secondary border-opacity-25 py-1.5 px-3 bg-dark-subtle d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi" [ngClass]="getToastIcon(toast.type)"></i>
+            <strong class="me-auto text-light small">{{ toast.title }}</strong>
+          </div>
+          <button
+            type="button"
+            class="btn-close btn-close-white small ms-2"
+            (click)="notifyService.dismiss(toast.id)"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="toast-body small py-2 px-3 text-secondary">
+          {{ toast.message }}
+        </div>
+      </div>
+    }
+  </div>
+</div>
