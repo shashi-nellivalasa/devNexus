@@ -88,6 +88,24 @@ describe('DevNexus Application & Tool Engine Tests', () => {
     expect(parsed?.body?.type).toBe('json');
   });
 
+  it('should prettify minified JS and CSS build chunks', async () => {
+    const { formatChunk } = await import('./shared/utils/chunk-formatter.util');
+    const jsRes = formatChunk('var a=1;function f(x){return x+1;}export{f};', {
+      language: 'auto',
+      indentSize: 2
+    });
+    expect(jsRes.detectedLanguage).toBe('javascript');
+    expect(jsRes.formattedLines).toBeGreaterThan(3);
+    expect(jsRes.formatted).toContain('function f(x) {');
+
+    const cssRes = formatChunk('.btn{color:#fff;padding:4px 8px;}', {
+      language: 'auto',
+      indentSize: 2
+    });
+    expect(cssRes.detectedLanguage).toBe('css');
+    expect(cssRes.formatted).toContain('  color: #fff;');
+  });
+
   it('should parse OpenAPI specification document correctly', () => {
     const dataService = TestBed.inject(DataService);
 

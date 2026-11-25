@@ -5,6 +5,7 @@
 export const REGISTERED_TOOL_IDS = [
   'api-tester',
   'base64-studio',
+  'chunk-formatter',
   'code-diff',
   'code-minifier',
   'encode-decode',

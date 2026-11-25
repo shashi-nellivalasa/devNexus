@@ -65,6 +65,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/code-tools/code-minifier/code-minifier.component').then(m => m.CodeMinifierComponent)
   },
   {
+    path: 'tools/chunk-formatter',
+    loadComponent: () => import('./features/code-tools/chunk-formatter/chunk-formatter.component').then(m => m.ChunkFormatterComponent)
+  },
+  {
     path: 'tools/typescript-playground',
     loadComponent: () => import('./features/code-tools/typescript-playground/typescript-playground.component').then(m => m.TypescriptPlaygroundComponent)
   },

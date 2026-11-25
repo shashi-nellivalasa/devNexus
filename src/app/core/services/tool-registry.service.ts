@@ -177,6 +177,18 @@ export class ToolRegistryService {
       keywords: ['minify', 'compress', 'javascript', 'css', 'html', 'bundle', 'optimize']
     },
     {
+      id: 'chunk-formatter',
+      name: 'Build Chunk Formatter (Prettifier)',
+      shortName: 'Chunk Formatter',
+      description: 'Prettify minified Angular, Vite, or Webpack build chunks (JS, CSS, HTML, JSON) with file upload and auto-detection.',
+      category: 'code',
+      categoryLabel: 'Code Tools',
+      icon: 'bi-file-earmark-code',
+      route: '/tools/chunk-formatter',
+      keywords: ['chunk', 'prettify', 'beautify', 'format', 'angular', 'bundle', 'minified', 'js', 'css'],
+      badge: 'New'
+    },
+    {
       id: 'typescript-playground',
       name: 'TypeScript Playground',
       shortName: 'TS Playground',
