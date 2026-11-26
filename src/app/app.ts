@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './layout/header/header.component';
-import { FooterComponent } from './layout/footer/footer.component';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { CommandPaletteComponent } from './layout/command-palette/command-palette.component';
 import { ModalContainerComponent } from './shared/components/modal/modal-container.component';
@@ -17,7 +16,6 @@ import { ThemeService } from './core/services/theme.service';
     CommonModule,
     RouterOutlet,
     HeaderComponent,
-    FooterComponent,
     SidebarComponent,
     CommandPaletteComponent,
     ModalContainerComponent
@@ -29,7 +27,37 @@ export class App {
   public notifyService = inject(NotificationService);
   public themeService = inject(ThemeService);
 
+  private static readonly DESKTOP_SIDEBAR_KEY = 'devnexus-desktop-sidebar-collapsed';
+
   public isMobileSidebarOpen = signal<boolean>(false);
+  public isDesktopSidebarCollapsed = signal<boolean>(this.loadDesktopSidebarState());
+
+  toggleDesktopSidebar(): void {
+    const next = !this.isDesktopSidebarCollapsed();
+    this.isDesktopSidebarCollapsed.set(next);
+    try {
+      localStorage.setItem(App.DESKTOP_SIDEBAR_KEY, next ? '1' : '0');
+    } catch {
+      /* ignore storage errors */
+    }
+  }
+
+  expandDesktopSidebar(): void {
+    this.isDesktopSidebarCollapsed.set(false);
+    try {
+      localStorage.setItem(App.DESKTOP_SIDEBAR_KEY, '0');
+    } catch {
+      /* ignore storage errors */
+    }
+  }
+
+  private loadDesktopSidebarState(): boolean {
+    try {
+      return localStorage.getItem(App.DESKTOP_SIDEBAR_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
 
   toggleMobileSidebar(): void {
     this.isMobileSidebarOpen.update(v => !v);

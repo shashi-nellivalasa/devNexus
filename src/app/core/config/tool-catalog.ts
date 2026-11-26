@@ -21,6 +21,7 @@ export const REGISTERED_TOOL_IDS = [
   'markdown-preview',
   'mock-data',
   'pdf-image-converter',
+  'pdf-signature-coordinates',
   'regex-tester',
   'sql-formatter',
   'string-escape',

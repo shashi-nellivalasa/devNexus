@@ -99,6 +99,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/generators/pdf-image-converter/pdf-image-converter.component').then(m => m.PdfImageConverterComponent)
   },
   {
+    path: 'tools/pdf-signature-coordinates',
+    loadComponent: () => import('./features/generators/pdf-signature-coordinates/pdf-signature-coordinates.component').then(m => m.PdfSignatureCoordinatesComponent)
+  },
+  {
     path: 'settings',
     loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent)
   },

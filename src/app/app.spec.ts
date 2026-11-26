@@ -213,4 +213,114 @@ describe('DevNexus Application & Tool Engine Tests', () => {
     expect(pdfText).toContain('/Filter /DCTDecode');
     expect(pdfText.trim().endsWith('%%EOF')).toBeTrue();
   });
+
+  it('should render PdfSignatureCoordinatesComponent with ToolHeader title and icon', async () => {
+    const { PdfSignatureCoordinatesComponent } = await import(
+      './features/generators/pdf-signature-coordinates/pdf-signature-coordinates.component'
+    );
+    const fixture = TestBed.createComponent(PdfSignatureCoordinatesComponent);
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('app-tool-header h1')?.textContent?.trim()).toBe(
+      'PDF Signature Coordinate Generator'
+    );
+    expect(el.querySelector('app-tool-header i.bi-pen')).toBeTruthy();
+  });
+
+  it('should transform CSS/PDF coordinates, clamp/snap with CropBox origin, and round-trip NSDL & eMudhra formats', async () => {
+    const {
+      screenToPdf,
+      pdfToScreen,
+      snapPdf,
+      commitPdf,
+      nsdlXToPdfX,
+      pdfXToNsdlX,
+      parseNsdlCoordinates,
+      serializeNsdlTokens,
+      serializeNsdlBoxes,
+      serializeEmudhraBoxes
+    } = await import('./shared/utils/pdf-signature-coordinates.util');
+
+    const pageInput = { pdfWidth: 600, pdfHeight: 800, cssWidth: 300, cssHeight: 400, originX: 36, originY: 48 };
+    const rect = { x: 136, y: 248, width: 150, height: 50 };
+    const screen = pdfToScreen(rect, pageInput);
+    expect(screen.left).toBeCloseTo(50);
+    expect(screen.top).toBeCloseTo(275);
+    const back = screenToPdf(screen, pageInput);
+    expect(back.x).toBeCloseTo(rect.x);
+    expect(back.y).toBeCloseTo(rect.y);
+
+    const snapped = snapPdf({ x: 48, y: 60, width: 150.4, height: 50.4 }, 10, 36, 48);
+    expect(snapped).toEqual({ x: 46, y: 58, width: 150, height: 50 });
+
+    const info = {
+      pageNumber: 1,
+      originX: 36,
+      originY: 48,
+      pdfWidth: 600,
+      pdfHeight: 800,
+      rotation: 0,
+      renderedWidth: 600,
+      renderedHeight: 800,
+      scale: 1,
+      devicePixelRatio: 1
+    };
+    const committed = commitPdf({ x: 630.6, y: 840.4, width: 20.2, height: 15.6 }, info, {
+      snap: false,
+      snapSize: 1,
+      integer: true
+    });
+    expect(committed.x + committed.width).toBeLessThanOrEqual(636);
+    expect(committed.y + committed.height).toBeLessThanOrEqual(848);
+
+    const sample = '10-411,22,44,150;11-65,440,50,150;';
+    expect(nsdlXToPdfX(411, 150, 595)).toBeCloseTo(34);
+    expect(pdfXToNsdlX(34, 150, 595)).toBeCloseTo(411);
+    const parsed = parseNsdlCoordinates(sample, () => 595);
+    expect(parsed.length).toBe(2);
+    expect(serializeNsdlTokens(parsed, 'integer', () => 595)).toBe(sample);
+
+    const boxes = [
+      { id: '1', signerId: 1, page: 10, pdf: { x: 34, y: 22, width: 150, height: 44 }, createdAt: 1, order: 0 },
+      { id: '2', signerId: 1, page: 11, pdf: { x: 380, y: 440, width: 150, height: 50 }, createdAt: 1, order: 1 }
+    ];
+    expect(serializeNsdlBoxes(boxes, 'integer', () => 595)).toBe(sample);
+    expect(serializeEmudhraBoxes(boxes, 'integer')).toBe('10,34,22,184,66;11,380,440,530,490;');
+
+    const {
+      serializeCdslBoxes,
+      serializeCvlBoxes,
+      formatBoxesForProvider,
+      parseProviderCoordinates
+    } = await import('./shared/utils/pdf-signature-coordinates.util');
+    expect(serializeCdslBoxes(boxes, 'integer')).toBe('10:34,22,184,66;11:380,440,530,490;');
+
+    // CVL round-trip using uploaded CKYC sample: `1,390,739,164,60;` on A4 (595x842)
+    const cvlSample = '1,390,739,164,60;';
+    const [cvlImported] = parseProviderCoordinates(cvlSample, () => 595, () => 842, 'cvl');
+    expect(cvlImported).toEqual({ page: 1, x: 390, y: 43, width: 164, height: 60 });
+    expect(
+      serializeCvlBoxes(
+        [{ id: 'cvl1', signerId: 1, page: 1, pdf: { x: 390, y: 43, width: 164, height: 60 }, createdAt: 1, order: 0 }],
+        'integer',
+        () => 842
+      )
+    ).toBe(cvlSample);
+    expect(parseProviderCoordinates(cvlSample, () => 595, () => 842, 'all')[0]).toEqual({
+      page: 1,
+      x: 390,
+      y: 43,
+      width: 164,
+      height: 60
+    });
+
+    const digioJson = formatBoxesForProvider('digio', boxes, [{ id: 1, name: 'Applicant', color: '#0d6efd' }]);
+    expect(digioJson).toContain('"display_on_page": "custom"');
+    expect(parseProviderCoordinates(digioJson).length).toBe(2);
+
+    const leegalityJson = formatBoxesForProvider('leegality', boxes, [{ id: 1, name: 'Applicant', color: '#0d6efd' }]);
+    expect(leegalityJson).toContain('"signatureCoordinates"');
+    expect(parseProviderCoordinates(leegalityJson).length).toBe(2);
+    expect(parseProviderCoordinates('10,34,22,184,66;').length).toBe(1);
+  });
 });

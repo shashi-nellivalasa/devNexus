@@ -17,61 +17,115 @@ import { filter } from 'rxjs/operators';
 import { ToolRegistryService } from '../../core/services/tool-registry.service';
 import { StorageService } from '../../core/services/storage.service';
 import { ToolCategoryGroup } from '../../core/models/tool.model';
+import { FooterComponent } from '../footer/footer.component';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, FooterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <aside class="app-sidebar h-100 d-flex flex-column border-end border-secondary border-opacity-25">
-      <div class="p-3 border-bottom border-secondary border-opacity-25 sidebar-search">
-        <div class="input-group input-group-sm">
-          <span class="input-group-text bg-dark-subtle border-secondary border-opacity-50 text-secondary">
-            <i class="bi bi-filter" aria-hidden="true"></i>
-          </span>
-          <input
-            type="search"
-            class="form-control form-control-sm bg-dark-subtle border-secondary border-opacity-50 shadow-none"
-            placeholder="Filter utilities..."
-            [(ngModel)]="filterQuery"
-            aria-label="Filter sidebar utilities"
-          />
-          @if (filterQuery) {
-            <button class="btn btn-sm btn-outline-secondary" type="button" (click)="filterQuery = ''" aria-label="Clear filter">
-              <i class="bi bi-x" aria-hidden="true"></i>
+    <aside
+      class="app-sidebar h-100 d-flex flex-column border-end border-secondary border-opacity-25"
+      [class.app-sidebar--collapsed]="collapsed && !isMobile"
+    >
+      @if (!collapsed || isMobile) {
+        <div class="p-3 border-bottom border-secondary border-opacity-25 sidebar-search d-flex align-items-center gap-2">
+          <div class="input-group input-group-sm flex-grow-1">
+            <span class="input-group-text bg-dark-subtle border-secondary border-opacity-50 text-secondary">
+              <i class="bi bi-filter" aria-hidden="true"></i>
+            </span>
+            <input
+              type="search"
+              class="form-control form-control-sm bg-dark-subtle border-secondary border-opacity-50 shadow-none"
+              placeholder="Filter utilities..."
+              [(ngModel)]="filterQuery"
+              aria-label="Filter sidebar utilities"
+            />
+            @if (filterQuery) {
+              <button class="btn btn-sm btn-outline-secondary" type="button" (click)="filterQuery = ''" aria-label="Clear filter">
+                <i class="bi bi-x" aria-hidden="true"></i>
+              </button>
+            }
+          </div>
+          @if (!isMobile) {
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary flex-shrink-0"
+              (click)="toggleCollapsed.emit()"
+              title="Collapse sidebar"
+              aria-label="Collapse sidebar"
+            >
+              <i class="bi bi-layout-sidebar-inset"></i>
             </button>
           }
         </div>
-      </div>
+      } @else {
+        <div class="p-2 border-bottom border-secondary border-opacity-25 d-flex justify-content-center">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            (click)="toggleCollapsed.emit()"
+            title="Expand sidebar"
+            aria-label="Expand sidebar"
+          >
+            <i class="bi bi-layout-sidebar"></i>
+          </button>
+        </div>
+      }
 
       <nav class="sidebar-nav flex-grow-1 overflow-auto p-2" aria-label="Utilities navigation">
-        <h2 class="d-flex align-items-center gap-2 small fw-semibold flex-grow-1">Overview Dashboard</h2>
+        @if (!collapsed || isMobile) {
+          <h2 class="d-flex align-items-center gap-2 small fw-semibold flex-grow-1">Overview Dashboard</h2>
+        } @else {
+          <a
+            routerLink="/"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="category-header nav-dashboard w-100 d-flex align-items-center justify-content-center py-2 rounded-2 mb-2 text-decoration-none text-secondary"
+            title="Overview Dashboard"
+            aria-label="Overview Dashboard"
+          >
+            <i class="bi bi-grid-1x2" style="color: var(--dn-accent); font-size: 1rem;"></i>
+          </a>
+        }
         @for (cat of filteredCategories; track cat.id) {
           @if (cat.tools.length > 0) {
             <div class="category-group mb-2" [class.category-group--open]="!isCollapsed(cat.id)">
               <button
                 type="button"
-                class="category-header w-100 d-flex align-items-center justify-content-between px-2 py-2 rounded-2 border-0 text-start text-secondary"
+                class="category-header w-100 d-flex align-items-center px-2 py-2 rounded-2 border-0 text-secondary"
+                [class.justify-content-between]="!collapsed || isMobile"
+                [class.justify-content-center]="collapsed && !isMobile"
+                [title]="cat.name"
                 (click)="toggleCollapse(cat.id)"
-                [attr.aria-expanded]="!isCollapsed(cat.id)"
+                [attr.aria-expanded]="!collapsed && !isCollapsed(cat.id)"
                 [attr.aria-controls]="'sidebar-cat-' + cat.id"
               >
                 <div class="d-flex align-items-center gap-2 min-w-0">
-                  <i class="bi flex-shrink-0" [ngClass]="cat.icon" style="color: var(--dn-accent); font-size: 0.85rem;"></i>
-                  <span class="text-uppercase fw-bold text-truncate category-title">{{ cat.name }}</span>
-                </div>
-                <span class="d-flex align-items-center gap-1 flex-shrink-0 ms-2">
-                  <span class="badge rounded-pill category-count-badge">{{ cat.tools.length }}</span>
                   <i
-                    class="bi category-chevron"
-                    [ngClass]="isCollapsed(cat.id) ? 'bi-chevron-right' : 'bi-chevron-down'"
-                    aria-hidden="true"
+                    class="bi flex-shrink-0"
+                    [ngClass]="cat.icon"
+                    [style.fontSize]="collapsed && !isMobile ? '1.1rem' : '0.85rem'"
+                    style="color: var(--dn-accent);"
                   ></i>
-                </span>
+                  @if (!collapsed || isMobile) {
+                    <span class="text-uppercase fw-bold text-truncate category-title">{{ cat.name }}</span>
+                  }
+                </div>
+                @if (!collapsed || isMobile) {
+                  <span class="d-flex align-items-center gap-1 flex-shrink-0 ms-2">
+                    <span class="badge rounded-pill category-count-badge">{{ cat.tools.length }}</span>
+                    <i
+                      class="bi category-chevron"
+                      [ngClass]="isCollapsed(cat.id) ? 'bi-chevron-right' : 'bi-chevron-down'"
+                      aria-hidden="true"
+                    ></i>
+                  </span>
+                }
               </button>
 
-              @if (!isCollapsed(cat.id)) {
+              @if ((!collapsed || isMobile) && !isCollapsed(cat.id)) {
                 <div
                   class="tools-sublist mt-1"
                   [id]="'sidebar-cat-' + cat.id"
@@ -98,12 +152,20 @@ import { ToolCategoryGroup } from '../../core/models/tool.model';
           }
         }
       </nav>
+
+      @if (!isMobile && !collapsed) {
+        <app-footer [compact]="true"></app-footer>
+      }
     </aside>
   `,
   styles: [`
     .app-sidebar {
       width: 260px;
       background-color: var(--dn-surface-card);
+      transition: width 0.2s ease;
+    }
+    .app-sidebar--collapsed {
+      width: 64px;
     }
     .category-title {
       font-size: 0.7rem;
@@ -188,7 +250,10 @@ export class SidebarComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   @Input() isMobile = false;
+  @Input() collapsed = false;
   @Output() navigate = new EventEmitter<void>();
+  @Output() expandRequest = new EventEmitter<void>();
+  @Output() toggleCollapsed = new EventEmitter<void>();
 
   public filterQuery = '';
   /** At most one category expanded when not filtering (accordion). */
@@ -246,6 +311,11 @@ export class SidebarComponent implements OnInit {
   }
 
   toggleCollapse(catId: string): void {
+    if (this.collapsed && !this.isMobile) {
+      this.expandedCategoryId.set(catId);
+      this.expandRequest.emit();
+      return;
+    }
     if (this.filterQuery.trim()) {
       return;
     }

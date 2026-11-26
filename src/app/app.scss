@@ -13,6 +13,16 @@
   scroll-behavior: smooth;
 }
 
+.desktop-sidebar-shell {
+  width: 260px;
+  overflow: hidden;
+  transition: width 0.2s ease;
+}
+
+.desktop-sidebar-shell--collapsed {
+  width: 64px;
+}
+
 .app-page-flow {
   min-height: 100%;
   display: flex;

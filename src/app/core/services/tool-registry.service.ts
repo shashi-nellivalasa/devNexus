@@ -258,6 +258,18 @@ export class ToolRegistryService {
       keywords: ['pdf', 'image', 'png', 'jpg', 'jpeg', 'webp', 'convert', 'zip', 'download', 'merge'],
       badge: 'New'
     },
+    {
+      id: 'pdf-signature-coordinates',
+      name: 'PDF Signature Coordinate Generator',
+      shortName: 'PDF Sign Coords',
+      description: 'Place and resize signer signature boxes on PDF pages and extract NSDL eSign coordinates locally in your browser.',
+      category: 'generators',
+      categoryLabel: 'Generators',
+      icon: 'bi-pen',
+      route: '/tools/pdf-signature-coordinates',
+      keywords: ['pdf', 'signature', 'coordinates', 'nsdl', 'esign', 'sign', 'box', 'emudhra'],
+      badge: 'New'
+    },
 
     // ---------------- API Tools ----------------
     {

@@ -5,8 +5,15 @@
   <!-- Body Content: Desktop Sidebar + Main Workspace -->
   <div class="app-body d-flex flex-grow-1 overflow-hidden position-relative">
     <!-- Desktop Sidebar -->
-    <div class="d-none d-md-block h-100 flex-shrink-0">
-      <app-sidebar></app-sidebar>
+    <div
+      class="desktop-sidebar-shell d-none d-md-block h-100 flex-shrink-0"
+      [class.desktop-sidebar-shell--collapsed]="isDesktopSidebarCollapsed()"
+    >
+      <app-sidebar
+        [collapsed]="isDesktopSidebarCollapsed()"
+        (expandRequest)="expandDesktopSidebar()"
+        (toggleCollapsed)="toggleDesktopSidebar()"
+      ></app-sidebar>
     </div>
 
     <!-- Mobile Drawer Sidebar Backdrop & Panel -->
@@ -29,7 +36,6 @@
       <main class="app-main-workspace flex-grow-1 overflow-auto position-relative">
         <div class="app-page-flow">
           <router-outlet></router-outlet>
-          <app-footer></app-footer>
         </div>
       </main>
     </div>
