@@ -1,8 +1,9 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToolHeaderComponent } from '../../../shared/components/tool-header/tool-header.component';
 import { NotificationService } from '../../../core/services/notification.service';
+import { ModalService } from '../../../core/services/modal.service';
 import {
   buildPdfFromJpegImages,
   formatBytes,
@@ -185,8 +186,16 @@ interface UploadedImageItem {
                   @for (page of renderedPages; track page.pageNumber) {
                     <div class="col-md-6 col-xl-4">
                       <div class="border border-secondary border-opacity-25 rounded p-2 h-100 d-flex flex-column">
-                        <div class="bg-dark bg-opacity-25 rounded d-flex align-items-center justify-content-center mb-2 overflow-hidden" style="height: 200px;">
+                        <div
+                          class="bg-dark bg-opacity-25 rounded d-flex align-items-center justify-content-center mb-2 overflow-hidden cursor-pointer position-relative"
+                          style="height: 200px;"
+                          title="Click to preview full image"
+                          (click)="openImagePreview(page)"
+                        >
                           <img [src]="page.dataUrl" [alt]="'Page ' + page.pageNumber" class="img-fluid mh-100 object-fit-contain" />
+                          <span class="badge bg-dark bg-opacity-75 position-absolute bottom-0 end-0 m-2">
+                            <i class="bi bi-arrows-fullscreen"></i>
+                          </span>
                         </div>
                         <div class="d-flex align-items-center justify-content-between small mb-2">
                           <span class="fw-semibold">Page {{ page.pageNumber }}</span>
@@ -336,6 +345,23 @@ interface UploadedImageItem {
         </div>
       }
     </div>
+
+    <ng-template #imagePreviewModal let-page>
+      <div class="text-center">
+        <div class="bg-dark bg-opacity-25 rounded p-2 d-flex align-items-center justify-content-center mb-3" style="max-height: 75vh;">
+          <img
+            [src]="page.dataUrl"
+            [alt]="'Page ' + page.pageNumber"
+            class="img-fluid object-fit-contain"
+            style="max-height: 72vh;"
+          />
+        </div>
+        <div class="d-flex flex-wrap justify-content-between align-items-center small text-secondary font-mono px-1">
+          <span>{{ page.fileName }}</span>
+          <span>{{ page.widthPx }}×{{ page.heightPx }} px • {{ formatSize(page.sizeBytes) }}</span>
+        </div>
+      </div>
+    </ng-template>
   `,
   styles: [`
     .cursor-pointer { cursor: pointer; }
@@ -347,9 +373,12 @@ interface UploadedImageItem {
   `]
 })
 export class PdfImageConverterComponent implements OnInit {
+  @ViewChild('imagePreviewModal') public imagePreviewModal?: TemplateRef<unknown>;
+
   constructor(
     private fb: FormBuilder,
     private notifyService: NotificationService,
+    private modalService: ModalService,
     private destroyRef: DestroyRef
   ) {
     this.destroyRef.onDestroy(() => {
@@ -401,6 +430,19 @@ export class PdfImageConverterComponent implements OnInit {
 
   public formatSize(bytes: number): string {
     return formatBytes(bytes);
+  }
+
+  public openImagePreview(page: RenderedPdfPage): void {
+    if (!this.imagePreviewModal) return;
+    this.modalService.open({
+      title: `Page ${page.pageNumber} Preview`,
+      size: 'xl',
+      template: this.imagePreviewModal,
+      data: page,
+      confirmText: 'Download',
+      cancelText: 'Close',
+      onConfirm: () => this.downloadRenderedPage(page)
+    });
   }
 
   public onDragOver(event: DragEvent, kind: 'pdf' | 'image'): void {
