@@ -303,17 +303,53 @@ interface PointerGuide {
             <input type="file" accept="application/pdf,.pdf" class="d-none" (change)="onPdfFileInput($event)" />
           </label>
 
-          <div class="btn-group btn-group-sm" role="group" aria-label="Page navigation">
-            <button type="button" class="btn btn-outline-secondary" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() <= 1">
+          <form
+            [formGroup]="pageJumpForm"
+            (ngSubmit)="submitPageJump()"
+            class="input-group input-group-sm w-auto flex-nowrap"
+            role="group"
+            aria-label="Page navigation"
+          >
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="goToPage(currentPage() - 1)"
+              [disabled]="currentPage() <= 1"
+              title="Previous page"
+            >
               <i class="bi bi-chevron-left"></i>
             </button>
-            <span class="btn btn-outline-secondary disabled font-mono">
-              {{ currentPage() }} / {{ pageCount() }}
-            </span>
-            <button type="button" class="btn btn-outline-secondary" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= pageCount()">
+            <input
+              type="number"
+              formControlName="page"
+              class="form-control form-control-sm text-center font-mono px-1"
+              style="width: 4rem;"
+              [min]="1"
+              [max]="pageCount() || 1"
+              (change)="submitPageJump()"
+              (blur)="submitPageJump()"
+              aria-label="Go to page"
+              title="Enter page number and press Enter"
+            />
+            <span class="input-group-text font-mono px-2">/ {{ pageCount() }}</span>
+            <button
+              type="submit"
+              class="btn btn-outline-secondary"
+              [disabled]="pageCount() <= 1"
+              title="Go to page"
+            >
+              Go
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="goToPage(currentPage() + 1)"
+              [disabled]="currentPage() >= pageCount()"
+              title="Next page"
+            >
               <i class="bi bi-chevron-right"></i>
             </button>
-          </div>
+          </form>
 
           <div class="btn-group btn-group-sm" role="group" aria-label="Zoom controls">
             <button type="button" class="btn btn-outline-secondary" (click)="setZoom(zoom() / 1.25)">−</button>
@@ -936,6 +972,13 @@ export class PdfSignatureCoordinatesComponent implements OnInit {
       }
     });
 
+    effect(() => {
+      const page = this.currentPage();
+      if (this.pageJumpForm) {
+        this.pageJumpForm.patchValue({ page }, { emitEvent: false });
+      }
+    });
+
     this.destroyRef.onDestroy(() => {
       this.cleanupInteractions();
       this.resizeObserver?.disconnect();
@@ -981,6 +1024,7 @@ export class PdfSignatureCoordinatesComponent implements OnInit {
   public defaultWidth = signal(150);
   public defaultHeight = signal(50);
 
+  public pageJumpForm!: FormGroup;
   public importForm!: FormGroup;
   public boxForm!: FormGroup;
   public settingsForm!: FormGroup;
@@ -1057,6 +1101,9 @@ export class PdfSignatureCoordinatesComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    this.pageJumpForm = this.fb.group({
+      page: [this.currentPage()]
+    });
     this.importForm = this.fb.group({
       signerId: [1],
       nsdlText: ['']
@@ -1237,10 +1284,23 @@ export class PdfSignatureCoordinatesComponent implements OnInit {
     }
   }
 
+  public submitPageJump(): void {
+    const raw = this.pageJumpForm?.get('page')?.value;
+    const text = raw === null || raw === undefined ? '' : String(raw).trim();
+    const parsed = Number(text);
+    if (!text || !Number.isFinite(parsed)) {
+      this.pageJumpForm?.patchValue({ page: this.currentPage() }, { emitEvent: false });
+      return;
+    }
+    this.goToPage(Math.trunc(parsed));
+  }
+
   public goToPage(page: number): void {
     const max = this.pageCount();
     if (max === 0) return;
-    this.currentPage.set(Math.min(Math.max(1, page), max));
+    const target = Math.min(Math.max(1, Math.trunc(page)), max);
+    this.currentPage.set(target);
+    this.pageJumpForm?.patchValue({ page: target }, { emitEvent: false });
   }
 
   public async setZoom(z: number): Promise<void> {

@@ -214,17 +214,42 @@ describe('DevNexus Application & Tool Engine Tests', () => {
     expect(pdfText.trim().endsWith('%%EOF')).toBeTrue();
   });
 
-  it('should render PdfSignatureCoordinatesComponent with ToolHeader title and icon', async () => {
+  it('should render PdfSignatureCoordinatesComponent with ToolHeader title, icon, and go-to-page jump', async () => {
     const { PdfSignatureCoordinatesComponent } = await import(
       './features/generators/pdf-signature-coordinates/pdf-signature-coordinates.component'
     );
     const fixture = TestBed.createComponent(PdfSignatureCoordinatesComponent);
+    const comp = fixture.componentInstance;
     fixture.detectChanges();
     const el: HTMLElement = fixture.nativeElement;
     expect(el.querySelector('app-tool-header h1')?.textContent?.trim()).toBe(
       'PDF Signature Coordinate Generator'
     );
     expect(el.querySelector('app-tool-header i.bi-pen')).toBeTruthy();
+
+    comp.docMeta.set({ documentName: 'sample.pdf', pageCount: 12, fileSizeBytes: 1024 });
+    comp.pageCount.set(12);
+    comp.mode.set('workspace');
+    fixture.detectChanges();
+
+    const pageInput = el.querySelector('[aria-label="Page navigation"] input[aria-label="Go to page"]') as HTMLInputElement;
+    expect(pageInput).toBeTruthy();
+
+    comp.pageJumpForm.patchValue({ page: 8 });
+    comp.submitPageJump();
+    fixture.detectChanges();
+    expect(comp.currentPage()).toBe(8);
+
+    comp.pageJumpForm.patchValue({ page: 99 });
+    comp.submitPageJump();
+    fixture.detectChanges();
+    expect(comp.currentPage()).toBe(12);
+    expect(comp.pageJumpForm.get('page')?.value).toBe(12);
+
+    comp.pageJumpForm.patchValue({ page: '' });
+    comp.submitPageJump();
+    expect(comp.currentPage()).toBe(12);
+    expect(comp.pageJumpForm.get('page')?.value).toBe(12);
   });
 
   it('should transform CSS/PDF coordinates, clamp/snap with CropBox origin, and round-trip NSDL & eMudhra formats', async () => {
