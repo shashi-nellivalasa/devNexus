@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ToolHeaderComponent } from '../../../shared/components/tool-header/tool-header.component';
 import { CodeEditorComponent } from '../../../shared/components/code-editor/code-editor.component';
 import { NotificationService } from '../../../core/services/notification.service';
+import { parseJsonInput } from '../../../shared/utils/json-unwrap.util';
 
 @Component({
   selector: 'app-json-formatter',
@@ -55,6 +56,12 @@ import { NotificationService } from '../../../core/services/notification.service
             <div class="form-check form-switch ms-3 mb-0">
               <input class="form-check-input" type="checkbox" id="sortKeysCheck" [(ngModel)]="sortKeys" (ngModelChange)="formatJson()">
               <label class="form-check-label small text-secondary" for="sortKeysCheck">Sort Keys (A-Z)</label>
+            </div>
+
+            <!-- Unwrap Embedded / Unescaped JSON Toggle -->
+            <div class="form-check form-switch ms-2 mb-0" title="Automatically parse escaped JSON strings, key fragments, and unescaped &quot;{...}&quot; blocks">
+              <input class="form-check-input" type="checkbox" id="unwrapEmbeddedCheck" [(ngModel)]="unwrapEmbedded" (ngModelChange)="formatJson()">
+              <label class="form-check-label small text-secondary" for="unwrapEmbeddedCheck">Unwrap Escaped JSON</label>
             </div>
           </div>
 
@@ -118,6 +125,7 @@ export class JsonFormatterComponent {
   public outputText = '';
   public indentation: number | string = 2;
   public sortKeys = false;
+  public unwrapEmbedded = true;
   public errorMessage = '';
   public originalBytes = 0;
   public outputBytes = 0;
@@ -138,7 +146,7 @@ export class JsonFormatterComponent {
     }
 
     try {
-      let parsed = JSON.parse(this.inputText);
+      let parsed = parseJsonInput(this.inputText, this.unwrapEmbedded);
       if (this.sortKeys) {
         parsed = this.sortObjectKeys(parsed);
       }
@@ -158,7 +166,7 @@ export class JsonFormatterComponent {
     }
 
     try {
-      let parsed = JSON.parse(this.inputText);
+      let parsed = parseJsonInput(this.inputText, this.unwrapEmbedded);
       if (this.sortKeys) {
         parsed = this.sortObjectKeys(parsed);
       }

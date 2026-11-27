@@ -323,4 +323,26 @@ describe('DevNexus Application & Tool Engine Tests', () => {
     expect(parseProviderCoordinates(leegalityJson).length).toBe(2);
     expect(parseProviderCoordinates('10,34,22,184,66;').length).toBe(1);
   });
+
+  it('should unwrap escaped and raw-unescaped embedded JSON fragments in JSON Formatter', async () => {
+    const { parseJsonInput } = await import('./shared/utils/json-unwrap.util');
+
+    // Case 1: Property fragment with trailing comma + escaped inner JSON string
+    const escapedFragment =
+      '  "Bankresponsejson": "{\\"status\\":true,\\"message\\":\\"Data fetched successfully\\",\\"data\\":[{\\"header\\":{\\"sourceappcode\\":\\"NEXGENKYC\\"},\\"Party_Financials\\":{\\"Income_Slab_Desc\\":\\"10,00,001 To 25,00,000\\"}}]}",';
+    const parsedEscaped = parseJsonInput(escapedFragment, true) as any;
+    expect(parsedEscaped.Bankresponsejson.status).toBeTrue();
+    expect(parsedEscaped.Bankresponsejson.data[0].header.sourceappcode).toBe('NEXGENKYC');
+
+    // Case 2: Property fragment after raw String Unescape (outer quotes wrapping "{...}")
+    const unescapedFragment =
+      '  "Bankresponsejson": "{"status":true,"message":"Data fetched successfully","data":[{"header":{"sourceappcode":"NEXGENKYC"},"CRN_Status_code":"","Income_Slab_Desc":"10,00,001 To 25,00,000"}]}",';
+    const parsedUnescaped = parseJsonInput(unescapedFragment, true) as any;
+    expect(parsedUnescaped.Bankresponsejson.status).toBeTrue();
+    expect(parsedUnescaped.Bankresponsejson.data[0].CRN_Status_code).toBe('');
+    expect(parsedUnescaped.Bankresponsejson.data[0].Income_Slab_Desc).toBe('10,00,001 To 25,00,000');
+
+    // Strict mode preserves error on malformed unescaped quotes
+    expect(() => parseJsonInput(unescapedFragment, false)).toThrow();
+  });
 });
