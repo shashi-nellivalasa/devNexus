@@ -11,7 +11,7 @@ import { parseJsonInput } from '../../../shared/utils/json-unwrap.util';
   standalone: true,
   imports: [CommonModule, FormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="json-formatter-tool p-3">
+    <div class="json-formatter-tool p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="JSON Formatter & Minifier"
         description="Cleanly pretty-print JSON with custom indentation, sort keys alphabetically, or minify payloads for minimal network payload size."
@@ -92,26 +92,26 @@ import { parseJsonInput } from '../../../shared/utils/json-unwrap.util';
       </div>
 
       <!-- Editors -->
-      <div class="row g-3">
-        <div class="col-lg-6">
+      <div class="row g-3 flex-grow-1">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             title="JSON Input"
             language="json"
             [value]="inputText"
             (valueChange)="onInputChanged($event)"
             placeholder="Paste raw or unformatted JSON here..."
-            height="480px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             title="Formatted / Minified Result"
             language="json"
             [value]="outputText"
             [readOnly]="true"
             placeholder="Formatted output will appear here..."
-            height="480px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
       </div>

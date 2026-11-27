@@ -10,7 +10,7 @@ import { NotificationService } from '../../../core/services/notification.service
   standalone: true,
   imports: [CommonModule, FormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="sql-formatter-tool p-3">
+    <div class="sql-formatter-tool p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="SQL Formatter & Beautifier"
         description="Format, align, and clean messy SQL queries with configurable keyword casing and indentation rules."
@@ -65,26 +65,26 @@ import { NotificationService } from '../../../core/services/notification.service
       </div>
 
       <!-- Editors -->
-      <div class="row g-3">
-        <div class="col-lg-6">
+      <div class="row g-3 flex-grow-1">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             title="Raw SQL Query"
             language="sql"
             [value]="inputSql"
             (valueChange)="onInputChange($event)"
             placeholder="Paste raw SQL query here..."
-            height="480px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             title="Formatted SQL Output"
             language="sql"
             [value]="outputSql"
             [readOnly]="true"
             placeholder="Formatted SQL will appear here..."
-            height="480px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
       </div>

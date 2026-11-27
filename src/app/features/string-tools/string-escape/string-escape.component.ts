@@ -12,7 +12,7 @@ type EscapeType = 'json' | 'javascript' | 'html' | 'unicode';
   standalone: true,
   imports: [CommonModule, FormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="string-escape-tool p-3">
+    <div class="string-escape-tool p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="String Escape / Unescape"
         description="Escape and unescape special characters for JSON payloads, JavaScript strings, HTML markup, and Unicode code points."
@@ -105,26 +105,26 @@ type EscapeType = 'json' | 'javascript' | 'html' | 'unicode';
       </div>
 
       <!-- Editors -->
-      <div class="row g-3">
-        <div class="col-lg-6">
+      <div class="row g-3 flex-grow-1">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             [title]="direction === 'escape' ? 'Raw Input String' : 'Escaped Input String'"
             language="text"
             [value]="inputText"
             (valueChange)="onInputChanged($event)"
             placeholder="Type or paste text to escape or unescape..."
-            height="460px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             [title]="direction === 'escape' ? 'Escaped Result' : 'Unescaped Raw Output'"
             language="text"
             [value]="outputText"
             [readOnly]="true"
             placeholder="Result will appear here..."
-            height="460px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
       </div>

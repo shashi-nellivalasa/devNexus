@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, effect, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostBinding, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StorageService } from '../../../core/services/storage.service';
@@ -20,7 +20,7 @@ export interface EditorMarker {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="code-editor-container dn-card d-flex flex-column overflow-hidden h-100">
+    <div class="code-editor-container dn-card d-flex flex-column overflow-hidden flex-grow-1">
       <!-- Editor Top Bar -->
       <div class="editor-header px-3 py-2 border-bottom border-secondary border-opacity-25 d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center gap-2">
@@ -77,7 +77,12 @@ export interface EditorMarker {
       </div>
 
       <!-- Editor Body -->
-      <div class="editor-body position-relative" [style.height]="height" [style.min-height]="height">
+      <div
+        class="editor-body position-relative"
+        [class.flex-grow-1]="isFillHeight"
+        [style.height]="isFillHeight ? null : height"
+        [style.min-height]="isFillHeight ? minHeight : height"
+      >
         <!-- Monaco host container -->
         <div
           #monacoContainer
@@ -107,6 +112,14 @@ export interface EditorMarker {
     </div>
   `,
   styles: [`
+    :host {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    :host(.dn-code-editor-fill) {
+      flex: 1 1 auto;
+    }
     .code-editor-container {
       background-color: var(--dn-surface-card);
       border: 1px solid var(--dn-border);
@@ -114,6 +127,7 @@ export interface EditorMarker {
     }
     .editor-header {
       background-color: var(--dn-surface-1);
+      flex-shrink: 0;
     }
     .btn-icon {
       line-height: 1;
@@ -159,12 +173,19 @@ export class CodeEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() readOnly = false;
   @Input() placeholder = '';
   @Input() height = '320px';
+  @Input() minHeight = '320px';
+  @Input() fillHeight = false;
   @Input() title = '';
   @Input() copyable = true;
   @Input() downloadable = false;
   @Input() downloadFilename = 'file.txt';
   @Input() showClear = true;
   @Input() markers: EditorMarker[] = [];
+
+  @HostBinding('class.dn-code-editor-fill')
+  get isFillHeight(): boolean {
+    return this.fillHeight || this.height === '100%';
+  }
 
   @Output() valueChange = new EventEmitter<string>();
 

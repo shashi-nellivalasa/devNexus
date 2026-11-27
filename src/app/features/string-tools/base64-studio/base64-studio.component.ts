@@ -16,7 +16,7 @@ const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
   standalone: true,
   imports: [CommonModule, FormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="base64-studio p-3">
+    <div class="base64-studio p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="Base64 Studio — Text & Image"
         description="Encode and decode UTF-8 text and images to Base64 locally. Preview pictures, copy data URIs, and download decoded files."
@@ -65,31 +65,31 @@ const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
       </div>
 
       @if (studioTab === 'text') {
-        <div class="row g-3">
-          <div class="col-lg-6">
+        <div class="row g-3 flex-grow-1">
+          <div class="col-lg-6 d-flex flex-column">
             <app-code-editor
               [title]="direction === 'encode' ? 'Plain text' : 'Base64 input'"
               language="text"
               [value]="textInput"
               (valueChange)="onTextInput($event)"
               placeholder="Type or paste text…"
-              height="420px"
+              [fillHeight]="true"
             />
           </div>
-          <div class="col-lg-6">
+          <div class="col-lg-6 d-flex flex-column">
             <app-code-editor
               [title]="direction === 'encode' ? 'Base64 output' : 'Decoded text'"
               language="text"
               [value]="textOutput"
               [readOnly]="true"
-              height="420px"
+              [fillHeight]="true"
             />
           </div>
         </div>
       } @else if (direction === 'encode') {
-        <div class="row g-3">
-          <div class="col-lg-6">
-            <div class="dn-card p-3 h-100">
+        <div class="row g-3 flex-grow-1">
+          <div class="col-lg-6 d-flex flex-column">
+            <div class="dn-card p-3 flex-grow-1">
               <label class="form-label small fw-semibold" for="img-file">Upload image</label>
               <input
                 id="img-file"
@@ -116,30 +116,30 @@ const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
               }
             </div>
           </div>
-          <div class="col-lg-6">
+          <div class="col-lg-6 d-flex flex-column">
             <app-code-editor
               title="Base64 output"
               language="text"
               [value]="imageBase64Output"
               [readOnly]="true"
-              height="520px"
+              [fillHeight]="true"
             />
           </div>
         </div>
       } @else {
-        <div class="row g-3">
-          <div class="col-lg-6">
+        <div class="row g-3 flex-grow-1">
+          <div class="col-lg-6 d-flex flex-column">
             <app-code-editor
               title="Base64 or data URI"
               language="text"
               [value]="imageBase64Input"
               (valueChange)="onImageBase64Input($event)"
               placeholder="Paste data:image/jpeg;base64,... or raw Base64"
-              height="520px"
+              [fillHeight]="true"
             />
           </div>
-          <div class="col-lg-6">
-            <div class="dn-card p-3 h-100 d-flex flex-column" style="min-height: 520px;">
+          <div class="col-lg-6 d-flex flex-column">
+            <div class="dn-card p-3 flex-grow-1 d-flex flex-column" style="min-height: 320px;">
               <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
                 <h2 class="h6 fw-bold mb-0">Decoded image</h2>
                 <button type="button" class="btn btn-sm btn-outline-secondary" (click)="decodeImageFromInput()">

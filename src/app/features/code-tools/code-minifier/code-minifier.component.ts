@@ -12,7 +12,7 @@ type CodeType = 'javascript' | 'css' | 'html';
   standalone: true,
   imports: [CommonModule, FormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="code-minifier-tool p-3">
+    <div class="code-minifier-tool p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="Code Minifier (JS / CSS / HTML)"
         description="Compress JavaScript, CSS stylesheets, and HTML markup by stripping comments and redundant whitespace."
@@ -76,26 +76,26 @@ type CodeType = 'javascript' | 'css' | 'html';
       </div>
 
       <!-- Editors -->
-      <div class="row g-3">
-        <div class="col-lg-6">
+      <div class="row g-3 flex-grow-1">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             title="Source Code Input"
             [language]="codeType"
             [value]="inputCode"
             (valueChange)="onInputChange($event)"
             placeholder="Paste code to minify..."
-            height="480px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             title="Minified Result"
             [language]="codeType"
             [value]="outputCode"
             [readOnly]="true"
             placeholder="Minified code will appear here..."
-            height="480px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
       </div>

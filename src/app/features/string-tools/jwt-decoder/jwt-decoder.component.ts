@@ -16,7 +16,7 @@ interface JwtPartView {
   standalone: true,
   imports: [CommonModule, FormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="jwt-decoder-tool p-3">
+    <div class="jwt-decoder-tool p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="JWT Decoder"
         description="Decode JSON Web Token header and payload locally. Signature is not verified — for inspection only."
@@ -59,28 +59,30 @@ interface JwtPartView {
         }
       </div>
 
-      <div class="row g-3">
-        <div class="col-lg-6">
-          <div class="dn-card h-100" style="min-height: 320px;">
+      <div class="row g-3 flex-grow-1">
+        <div class="col-lg-6 d-flex flex-column">
+          <div class="dn-card flex-grow-1 d-flex flex-column">
             <div class="px-3 py-2 border-bottom border-secondary border-opacity-25 small fw-semibold">Header</div>
             <app-code-editor
-              class="flex-grow-1"
               language="json"
               [readOnly]="true"
               [value]="headerFormatted"
               title="Decoded header"
+              [fillHeight]="true"
+              minHeight="260px"
             ></app-code-editor>
           </div>
         </div>
-        <div class="col-lg-6">
-          <div class="dn-card h-100" style="min-height: 320px;">
+        <div class="col-lg-6 d-flex flex-column">
+          <div class="dn-card flex-grow-1 d-flex flex-column">
             <div class="px-3 py-2 border-bottom border-secondary border-opacity-25 small fw-semibold">Payload</div>
             <app-code-editor
-              class="flex-grow-1"
               language="json"
               [readOnly]="true"
               [value]="payloadFormatted"
               title="Decoded payload"
+              [fillHeight]="true"
+              minHeight="260px"
             ></app-code-editor>
           </div>
         </div>

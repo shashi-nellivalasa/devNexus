@@ -10,7 +10,7 @@ import { NotificationService } from '../../../core/services/notification.service
   standalone: true,
   imports: [CommonModule, FormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="json-to-ts-tool p-3">
+    <div class="json-to-ts-tool p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="JSON to TypeScript Interface Generator"
         description="Convert JSON payloads into strongly-typed TypeScript interfaces, extracting nested objects into modular, reusable types."
@@ -70,26 +70,26 @@ import { NotificationService } from '../../../core/services/notification.service
       </div>
 
       <!-- Editor Grid -->
-      <div class="row g-3">
-        <div class="col-lg-6">
+      <div class="row g-3 flex-grow-1">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             title="JSON Source Input"
             language="json"
             [value]="inputJson"
             (valueChange)="onInputChanged($event)"
             placeholder="Paste JSON document here..."
-            height="500px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             title="Generated TypeScript Interfaces"
             language="typescript"
             [value]="outputTs"
             [readOnly]="true"
             placeholder="Generated TypeScript code will appear here..."
-            height="500px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
       </div>

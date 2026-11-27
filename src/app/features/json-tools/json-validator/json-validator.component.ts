@@ -21,7 +21,7 @@ interface ValidationMetric {
   standalone: true,
   imports: [CommonModule, FormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="json-validator-tool p-3">
+    <div class="json-validator-tool p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="JSON Linter & Validator"
         description="Check JSON syntax validity with precise line and column error indicators and deep structural metrics."
@@ -78,22 +78,22 @@ interface ValidationMetric {
         }
       </div>
 
-      <div class="row g-3">
+      <div class="row g-3 flex-grow-1">
         <!-- Input Code Editor -->
-        <div class="col-lg-7">
+        <div class="col-lg-7 d-flex flex-column">
           <app-code-editor
             title="JSON Document to Validate"
             language="json"
             [value]="inputText"
             (valueChange)="onInputChanged($event)"
             placeholder="Paste JSON here to check validity..."
-            height="500px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
 
         <!-- Structural Metrics & Inspector Panel -->
-        <div class="col-lg-5">
-          <div class="dn-card p-3 h-100 d-flex flex-column">
+        <div class="col-lg-5 d-flex flex-column">
+          <div class="dn-card p-3 flex-grow-1 d-flex flex-column">
             <h3 class="h6 fw-bold text-light border-bottom border-secondary border-opacity-25 pb-2 mb-3 d-flex align-items-center gap-2">
               <i class="bi bi-bar-chart-fill text-info"></i>
               <span>Structural Analysis</span>

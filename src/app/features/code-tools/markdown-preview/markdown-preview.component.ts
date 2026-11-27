@@ -12,7 +12,7 @@ import { NotificationService } from '../../../core/services/notification.service
   standalone: true,
   imports: [CommonModule, FormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="markdown-preview-tool p-3">
+    <div class="markdown-preview-tool p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="Markdown Live Editor & Preview"
         description="Write and preview GitHub-flavored Markdown with live visual rendering, tables, code blocks, and HTML export."
@@ -66,23 +66,23 @@ import { NotificationService } from '../../../core/services/notification.service
       </div>
 
       <!-- Main Workspace Panels -->
-      <div class="row g-3">
+      <div class="row g-3 flex-grow-1">
         <!-- Editor Column -->
         @if (viewMode === 'split') {
-          <div class="col-lg-6">
+          <div class="col-lg-6 d-flex flex-column">
             <app-code-editor
               title="Markdown Source"
               language="markdown"
               [value]="markdownInput"
               (valueChange)="onMarkdownChange($event)"
               placeholder="Write Markdown here..."
-              height="550px"
+              [fillHeight]="true"
             ></app-code-editor>
           </div>
         }
 
         <!-- Preview Column -->
-        <div [ngClass]="viewMode === 'split' ? 'col-lg-6' : 'col-12'">
+        <div class="d-flex flex-column" [ngClass]="viewMode === 'split' ? 'col-lg-6' : 'col-12'">
           @if (viewMode === 'html-only') {
             <app-code-editor
               title="Rendered HTML Code"
@@ -90,10 +90,10 @@ import { NotificationService } from '../../../core/services/notification.service
               [value]="renderedHtmlRaw"
               [readOnly]="true"
               placeholder="Rendered HTML will appear here..."
-              height="550px"
+              [fillHeight]="true"
             ></app-code-editor>
           } @else {
-            <div class="dn-card p-4 h-100 overflow-auto markdown-body-container" style="min-height: 550px; max-height: 700px;">
+            <div class="dn-card p-4 flex-grow-1 overflow-auto markdown-body-container" style="min-height: 320px;">
               <div class="markdown-rendered-content text-light" [innerHTML]="safeRenderedHtml"></div>
             </div>
           }

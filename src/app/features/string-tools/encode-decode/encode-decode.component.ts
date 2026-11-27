@@ -12,7 +12,7 @@ type EncodingType = 'base64' | 'url' | 'html' | 'hex';
   standalone: true,
   imports: [CommonModule, FormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="encode-decode-tool p-3">
+    <div class="encode-decode-tool p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="Base64 / URL / HTML / Hex Encode Decode"
         description="Encode and decode text across UTF-8 Base64, URL encoding, HTML character entities, and Hexadecimal representations."
@@ -113,26 +113,26 @@ type EncodingType = 'base64' | 'url' | 'html' | 'hex';
       </div>
 
       <!-- Editors -->
-      <div class="row g-3">
-        <div class="col-lg-6">
+      <div class="row g-3 flex-grow-1">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             [title]="direction === 'encode' ? 'Raw Input Text' : 'Encoded Input Data'"
             language="text"
             [value]="inputText"
             (valueChange)="onInputChanged($event)"
             placeholder="Enter text to convert..."
-            height="460px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             [title]="direction === 'encode' ? 'Encoded Output Result' : 'Decoded Plaintext'"
             language="text"
             [value]="outputText"
             [readOnly]="true"
             placeholder="Converted result will appear here..."
-            height="460px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
       </div>

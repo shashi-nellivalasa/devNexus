@@ -21,7 +21,7 @@ import {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="chunk-formatter-tool p-3">
+    <div class="chunk-formatter-tool p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="Build Chunk Formatter & Minifier"
         description="Prettify, edit, validate syntax, and minify Angular, Vite, or Webpack build chunks (JS, CSS, HTML, JSON)."
@@ -203,8 +203,8 @@ import {
       </form>
 
       <!-- Side-by-Side Input & Editable Output Editors -->
-      <div class="row g-3">
-        <div class="col-lg-6">
+      <div class="row g-3 flex-grow-1">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             title="Source Chunk Input"
             [language]="editorLanguage"
@@ -212,11 +212,11 @@ import {
             [markers]="inputMarkers"
             (valueChange)="onInputChange($event)"
             placeholder="Paste minified chunk-*.js / styles-*.css here, or click 'Load Chunk File'..."
-            height="500px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             [title]="currentMode === 'minify' ? 'Minified Output (Editable)' : 'Prettified Output (Editable)'"
             [language]="editorLanguage"
@@ -225,7 +225,7 @@ import {
             [markers]="outputMarkers"
             (valueChange)="onOutputChange($event)"
             placeholder="Formatted or minified output will appear here (editable)..."
-            height="500px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
       </div>

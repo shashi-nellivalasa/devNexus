@@ -346,3 +346,68 @@ describe('DevNexus Application & Tool Engine Tests', () => {
     expect(() => parseJsonInput(unescapedFragment, false)).toThrow();
   });
 });
+
+describe('DevNexus Viewport Editor Sizing Tests', () => {
+  it('should stretch fillHeight CodeEditorComponent panes inside a tall App workspace with zero leftover bottom space', async () => {
+    const { Router } = await import('@angular/router');
+    const { JsonFormatterComponent } = await import(
+      './features/json-tools/json-formatter/json-formatter.component'
+    );
+
+    await TestBed.configureTestingModule({
+      imports: [App],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([{ path: 'tools/json-formatter', component: JsonFormatterComponent }])
+      ]
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(App);
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/tools/json-formatter');
+    fixture.detectChanges();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    const rootEl = fixture.nativeElement as HTMLElement;
+    const layoutEl = rootEl.querySelector('.app-layout') as HTMLElement;
+    expect(layoutEl).toBeTruthy();
+
+    // Force a tall desktop-height workspace regardless of ChromeHeadless default window size
+    layoutEl.style.setProperty('width', '1280px', 'important');
+    layoutEl.style.setProperty('height', '960px', 'important');
+    layoutEl.style.setProperty('min-height', '960px', 'important');
+
+    const editorsRow = rootEl.querySelector('app-json-formatter .row') as HTMLElement;
+    expect(editorsRow).toBeTruthy();
+    // Simulate side-by-side lg columns inside test even if headless width is < 992px
+    Array.from(editorsRow.children).forEach(col => {
+      (col as HTMLElement).style.width = '50%';
+      (col as HTMLElement).style.flex = '0 0 auto';
+    });
+
+    const toolRoot = rootEl.querySelector('.json-formatter-tool') as HTMLElement;
+    const mainEl = rootEl.querySelector('.app-main-workspace') as HTMLElement;
+    const editorBodies = Array.from(rootEl.querySelectorAll('app-code-editor .editor-body')) as HTMLElement[];
+
+    expect(toolRoot).toBeTruthy();
+    expect(mainEl).toBeTruthy();
+    expect(editorBodies.length).toBe(2);
+
+    const mainRect = mainEl.getBoundingClientRect();
+    const toolRect = toolRoot.getBoundingClientRect();
+    const rowRect = editorsRow.getBoundingClientRect();
+    const leftBodyRect = editorBodies[0].getBoundingClientRect();
+    const rightBodyRect = editorBodies[1].getBoundingClientRect();
+
+    expect(mainRect.height).toBeGreaterThan(800);
+    expect(toolRect.height).toBeCloseTo(mainRect.height, 0);
+    expect(Math.abs((mainRect.bottom - rowRect.bottom) - 16)).toBeLessThanOrEqual(2);
+    expect(leftBodyRect.height).toBeGreaterThan(560);
+    expect(rightBodyRect.height).toBeGreaterThan(560);
+    expect(Math.abs(leftBodyRect.height - rightBodyRect.height)).toBeLessThanOrEqual(1);
+
+    fixture.destroy();
+  });
+});

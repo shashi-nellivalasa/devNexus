@@ -11,7 +11,7 @@ import { NotificationService } from '../../../core/services/notification.service
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="mock-data-tool p-3">
+    <div class="mock-data-tool p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="Mock Data Generator"
         description="Generate realistic, schema-driven mock datasets for frontend testing, API mocks, and database seeding."
@@ -119,14 +119,14 @@ import { NotificationService } from '../../../core/services/notification.service
       </form>
 
       <!-- Output Display -->
-      <div>
+      <div class="d-flex flex-column flex-grow-1">
         <app-code-editor
           [title]="'Generated ' + (form.value.schemaType | uppercase) + ' (' + generatedCount + ' items)'"
           [language]="form.value.format === 'csv' ? 'text' : 'json'"
           [value]="outputContent"
           [readOnly]="true"
           placeholder="Click 'Generate Dataset' to synthesize records..."
-          height="540px"
+          [fillHeight]="true"
         ></app-code-editor>
       </div>
     </div>

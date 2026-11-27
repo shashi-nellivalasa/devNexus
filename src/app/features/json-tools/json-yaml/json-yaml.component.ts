@@ -13,7 +13,7 @@ type ConvertMode = 'json-to-yaml' | 'yaml-to-json';
   standalone: true,
   imports: [CommonModule, FormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="json-yaml-tool p-3">
+    <div class="json-yaml-tool p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="JSON ↔ YAML Converter"
         description="Convert between JSON and YAML locally. Useful for configs, OpenAPI snippets, and Kubernetes manifests."
@@ -56,26 +56,24 @@ type ConvertMode = 'json-to-yaml' | 'yaml-to-json';
         }
       </div>
 
-      <div class="row g-3">
-        <div class="col-lg-6">
-          <div class="dn-card overflow-hidden" style="min-height: 420px;">
-            <app-code-editor
-              [title]="inputTitle"
-              [language]="inputLanguage"
-              [(value)]="inputText"
-              (valueChange)="onInputChange()"
-            ></app-code-editor>
-          </div>
+      <div class="row g-3 flex-grow-1">
+        <div class="col-lg-6 d-flex flex-column">
+          <app-code-editor
+            [title]="inputTitle"
+            [language]="inputLanguage"
+            [(value)]="inputText"
+            (valueChange)="onInputChange()"
+            [fillHeight]="true"
+          ></app-code-editor>
         </div>
-        <div class="col-lg-6">
-          <div class="dn-card overflow-hidden" style="min-height: 420px;">
-            <app-code-editor
-              [title]="outputTitle"
-              [language]="outputLanguage"
-              [readOnly]="true"
-              [value]="outputText"
-            ></app-code-editor>
-          </div>
+        <div class="col-lg-6 d-flex flex-column">
+          <app-code-editor
+            [title]="outputTitle"
+            [language]="outputLanguage"
+            [readOnly]="true"
+            [value]="outputText"
+            [fillHeight]="true"
+          ></app-code-editor>
         </div>
       </div>
     </div>

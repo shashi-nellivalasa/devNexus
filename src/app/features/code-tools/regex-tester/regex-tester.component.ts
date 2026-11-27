@@ -17,7 +17,7 @@ interface RegexMatchItem {
   standalone: true,
   imports: [CommonModule, FormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="regex-tester-tool p-3">
+    <div class="regex-tester-tool p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="Regular Expression Tester & Debugger"
         description="Test regular expressions with real-time match highlighting, capture group inspection, and flag toggles."
@@ -104,22 +104,22 @@ interface RegexMatchItem {
       </div>
 
       <!-- Test String & Visual Match Inspector Layout -->
-      <div class="row g-3">
+      <div class="row g-3 flex-grow-1">
         <!-- Test String Input -->
-        <div class="col-lg-6">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             title="Test String"
             language="text"
             [value]="testString"
             (valueChange)="onTestStringChange($event)"
             placeholder="Type or paste test string to evaluate against pattern..."
-            height="460px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
 
         <!-- Matches & Capture Groups Output -->
-        <div class="col-lg-6">
-          <div class="dn-card p-3 h-100 d-flex flex-column">
+        <div class="col-lg-6 d-flex flex-column">
+          <div class="dn-card p-3 flex-grow-1 d-flex flex-column">
             <h3 class="h6 fw-bold text-light border-bottom border-secondary border-opacity-25 pb-2 mb-3 d-flex align-items-center justify-content-between">
               <span class="d-flex align-items-center gap-2">
                 <i class="bi bi-bullseye text-warning"></i>
@@ -132,7 +132,7 @@ interface RegexMatchItem {
             <div class="highlighted-preview font-mono p-3 rounded-2 bg-dark-subtle border border-secondary border-opacity-25 mb-3 overflow-auto" style="max-height: 180px; white-space: pre-wrap;" [innerHTML]="highlightedHtml"></div>
 
             <!-- Detailed Match & Group Table -->
-            <div class="match-table-wrapper flex-grow-1 overflow-auto" style="max-height: 240px;">
+            <div class="match-table-wrapper flex-grow-1 overflow-auto" style="min-height: 180px;">
               @if (matches.length > 0) {
                 <table class="table table-sm table-dark table-striped align-middle mb-0 font-mono small">
                   <thead>

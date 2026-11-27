@@ -10,7 +10,7 @@ import { NotificationService } from '../../../core/services/notification.service
   standalone: true,
   imports: [CommonModule, FormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="json-stringify-tool p-3">
+    <div class="json-stringify-tool p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="JSON Stringify / Unstringify"
         description="Escape JSON into single-line escaped strings or unpack escaped stringified payloads back into formatted JSON."
@@ -77,26 +77,26 @@ import { NotificationService } from '../../../core/services/notification.service
       </div>
 
       <!-- Two-Panel Editor Layout -->
-      <div class="row g-3">
-        <div class="col-lg-6">
+      <div class="row g-3 flex-grow-1">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             [title]="mode === 'stringify' ? 'JSON Input (Object / Array)' : 'Escaped String Input'"
             [language]="mode === 'stringify' ? 'json' : 'text'"
             [value]="inputText"
             (valueChange)="onInputChanged($event)"
             placeholder="Paste your content here..."
-            height="460px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-lg-6 d-flex flex-column">
           <app-code-editor
             [title]="mode === 'stringify' ? 'Escaped String Output' : 'Formatted JSON Object Output'"
             [language]="mode === 'stringify' ? 'text' : 'json'"
             [value]="outputText"
             [readOnly]="true"
             placeholder="Result will appear here..."
-            height="460px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
       </div>

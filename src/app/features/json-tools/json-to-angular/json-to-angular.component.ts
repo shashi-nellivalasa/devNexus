@@ -10,7 +10,7 @@ import { NotificationService } from '../../../core/services/notification.service
   standalone: true,
   imports: [CommonModule, FormsModule, ToolHeaderComponent, CodeEditorComponent],
   template: `
-    <div class="json-to-angular-tool p-3">
+    <div class="json-to-angular-tool p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="JSON to Angular Interface & Model Generator"
         description="Generate production-ready Angular model files, DTO contracts, factory helpers, and Angular DataService definitions."
@@ -82,26 +82,26 @@ import { NotificationService } from '../../../core/services/notification.service
       </div>
 
       <!-- Editors -->
-      <div class="row g-3">
-        <div class="col-lg-5">
+      <div class="row g-3 flex-grow-1">
+        <div class="col-lg-5 d-flex flex-column">
           <app-code-editor
             title="JSON Payload"
             language="json"
             [value]="inputJson"
             (valueChange)="onInputChanged($event)"
             placeholder="Paste API response JSON here..."
-            height="520px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
 
-        <div class="col-lg-7">
+        <div class="col-lg-7 d-flex flex-column">
           <app-code-editor
             title="Generated Angular Model File (.ts)"
             language="typescript"
             [value]="outputCode"
             [readOnly]="true"
             placeholder="Angular model code will appear here..."
-            height="520px"
+            [fillHeight]="true"
           ></app-code-editor>
         </div>
       </div>
