@@ -82,7 +82,7 @@ interface PointerGuide {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ToolHeaderComponent],
   template: `
-    <div class="p-3">
+    <div class="p-3 d-flex flex-column flex-grow-1">
       <app-tool-header
         title="PDF Signature Coordinate Generator"
         description="Upload a PDF, place and resize signer signature boxes, and extract NSDL / eMudhra eSign coordinates locally in your browser."
@@ -432,11 +432,11 @@ interface PointerGuide {
         </div>
 
         <!-- Main Workspace Body -->
-        <div class="row g-2">
+        <div #workspaceGrid class="workspace-split flex-grow-1">
           <!-- PDF Canvas Stage -->
-          <div class="col-lg-8 col-xl-9">
-            <div class="dn-card p-2">
-              <div #viewerHost class="viewer-host rounded border border-secondary border-opacity-25 p-3 position-relative">
+          <div class="workspace-stage-col" [style.--stage-col-width.px]="stageColumnWidthPx()">
+            <div class="dn-card p-2 stage-card d-flex flex-column">
+              <div #viewerHost class="viewer-host rounded border border-secondary border-opacity-25 p-2 position-relative flex-grow-1">
                 @if (placementMode()) {
                   <div class="alert alert-warning py-1 px-2 small mb-0 d-flex align-items-center justify-content-between shadow-sm floating-banner">
                     <span>
@@ -457,16 +457,15 @@ interface PointerGuide {
                 }
 
                 @if (currentPageInfo(); as page) {
-                  <div class="d-flex justify-content-center">
-                    <div
-                      class="page-stage shadow"
-                      [class.page-stage--placing]="placementMode()"
-                      [style.width.px]="page.renderedWidth"
-                      [style.height.px]="page.renderedHeight"
-                      (pointerdown)="onStagePointerDown($event, page)"
-                      (pointermove)="onStagePointerMove($event, page)"
-                      (pointerleave)="pointerGuide.set(null)"
-                    >
+                  <div
+                    class="page-stage mx-auto shadow"
+                    [class.page-stage--placing]="placementMode()"
+                    [style.width.px]="page.renderedWidth"
+                    [style.height.px]="page.renderedHeight"
+                    (pointerdown)="onStagePointerDown($event, page)"
+                    (pointermove)="onStagePointerMove($event, page)"
+                    (pointerleave)="pointerGuide.set(null)"
+                  >
                       <canvas #pdfCanvas class="page-canvas"></canvas>
                       @if (showGrid()) {
                         <div class="page-grid-overlay" [style.--grid-size.px]="gridSizePx(page)"></div>
@@ -524,7 +523,6 @@ interface PointerGuide {
                           </div>
                         }
                       }
-                    </div>
                   </div>
                 }
               </div>
@@ -532,32 +530,34 @@ interface PointerGuide {
           </div>
 
           <!-- Right Inspector Panel -->
-          <div class="col-lg-4 col-xl-3">
-            <div class="dn-card p-2 d-flex flex-column gap-3 inspector-panel">
-              <!-- Active Signer Selector -->
-              <div>
-                <div class="small fw-bold text-uppercase text-secondary mb-2">Active Signer</div>
-                <div class="d-flex flex-column gap-1">
-                  @for (signer of signers(); track signer.id) {
-                    <button
-                      type="button"
-                      class="btn btn-sm text-start d-flex align-items-center justify-content-between"
-                      [class.btn-primary]="activeSignerId() === signer.id"
-                      [class.btn-outline-secondary]="activeSignerId() !== signer.id"
-                      (click)="activeSignerId.set(signer.id)"
-                    >
-                      <span class="d-flex align-items-center gap-2 text-truncate">
-                        <span class="signer-swatch" [style.background]="signer.color"></span>
-                        <span class="text-truncate">{{ signer.name }}</span>
-                      </span>
-                      <span class="badge bg-dark bg-opacity-25">{{ countForSigner(signer.id) }}</span>
-                    </button>
-                  }
-                </div>
-              </div>
+          <div class="workspace-inspector-col">
+            <div class="dn-card p-3 d-flex flex-column gap-3 inspector-panel">
+              <div class="inspector-top-grid">
+                <div class="d-flex flex-column gap-3">
+                  <!-- Active Signer Selector -->
+                  <div>
+                    <div class="small fw-bold text-uppercase text-secondary mb-2">Active Signer</div>
+                    <div class="d-flex flex-column gap-1">
+                      @for (signer of signers(); track signer.id) {
+                        <button
+                          type="button"
+                          class="btn btn-sm text-start d-flex align-items-center justify-content-between"
+                          [class.btn-primary]="activeSignerId() === signer.id"
+                          [class.btn-outline-secondary]="activeSignerId() !== signer.id"
+                          (click)="activeSignerId.set(signer.id)"
+                        >
+                          <span class="d-flex align-items-center gap-2 text-truncate">
+                            <span class="signer-swatch" [style.background]="signer.color"></span>
+                            <span class="text-truncate">{{ signer.name }}</span>
+                          </span>
+                          <span class="badge bg-dark bg-opacity-25">{{ countForSigner(signer.id) }}</span>
+                        </button>
+                      }
+                    </div>
+                  </div>
 
-              <!-- Selected Box Inspector -->
-              <div class="border-top border-secondary border-opacity-25 pt-2">
+                  <!-- Selected Box Inspector -->
+                  <div class="border-top border-secondary border-opacity-25 pt-2">
                 <div class="d-flex align-items-center justify-content-between mb-2">
                   <span class="small fw-bold text-uppercase text-secondary">Selected Box</span>
                   @if (selectedBox(); as sel) {
@@ -622,10 +622,11 @@ interface PointerGuide {
                 } @else {
                   <p class="small text-secondary mb-0">Click a signature box or use <strong>Add Signature</strong>.</p>
                 }
-              </div>
+                  </div>
+                </div>
 
-              <!-- Live Coordinate Exports -->
-              <div class="border-top border-secondary border-opacity-25 pt-2">
+                <!-- Live Coordinate Exports -->
+                <div class="inspector-pane-exports d-flex flex-column">
                 <div class="d-flex align-items-center justify-content-between mb-2">
                   <span class="small fw-bold text-uppercase text-secondary">{{ activeProviderOption().label }} Output</span>
                 </div>
@@ -679,78 +680,79 @@ interface PointerGuide {
                   </div>
                 </div>
                 <textarea
-                  class="form-control form-control-sm font-mono"
-                  rows="3"
+                  class="form-control form-control-sm font-mono flex-grow-1"
+                  rows="4"
                   readonly
                   [value]="combinedProviderOutput()"
                   placeholder="No boxes placed"
-                  style="font-size: 0.72rem;"
+                  style="font-size: 0.75rem; min-height: 96px;"
                 ></textarea>
+                </div>
+              </div>
+
+              <!-- Markers Table inside Inspector Box -->
+              <div class="border-top border-secondary border-opacity-25 pt-2 d-flex flex-column inspector-markers-section">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <span class="small fw-bold text-uppercase text-secondary">
+                    Markers <span class="badge bg-secondary ms-1">{{ boxes().length }}</span>
+                  </span>
+                  <button type="button" class="btn btn-sm btn-outline-secondary py-0" (click)="tableExpanded.set(!tableExpanded())">
+                    {{ tableExpanded() ? 'Collapse' : 'Expand' }}
+                  </button>
+                </div>
+
+                @if (tableExpanded()) {
+                  @if (boxes().length > 0) {
+                    <div class="table-responsive inspector-markers-table">
+                      <table class="table table-sm table-hover align-middle mb-0 small">
+                        <thead>
+                          <tr>
+                            <th>Signer</th>
+                            <th>Page</th>
+                            <th>X</th>
+                            <th>Y</th>
+                            <th>W</th>
+                            <th>H</th>
+                            <th>{{ selectedProvider() === 'all' ? 'NSDL Token' : activeProviderOption().label + ' Token' }}</th>
+                            <th class="text-end">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (box of boxes(); track box.id) {
+                            @let signer = signerFor(box.signerId);
+                            <tr [class.table-active]="selectedBoxId() === box.id">
+                              <td>
+                                @if (signer) {
+                                  <span class="signer-swatch me-1" [style.background]="signer.color"></span>
+                                  {{ signer.name }}
+                                }
+                              </td>
+                              <td class="font-mono">{{ box.page }}</td>
+                              <td class="font-mono">{{ Math.round(box.pdf.x) }}</td>
+                              <td class="font-mono">{{ Math.round(box.pdf.y) }}</td>
+                              <td class="font-mono">{{ Math.round(box.pdf.width) }}</td>
+                              <td class="font-mono">{{ Math.round(box.pdf.height) }}</td>
+                              <td class="font-mono text-secondary">{{ tokenForActiveProvider(box) }}</td>
+                              <td class="text-end text-nowrap">
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 me-1" (click)="selectAndJumpToBox(box)">
+                                  Go
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger py-0" (click)="deleteBox(box.id)">
+                                  <i class="bi bi-trash"></i>
+                                </button>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  } @else {
+                    <p class="small text-secondary mb-0">No signature boxes placed yet.</p>
+                  }
+                }
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Bottom Markers Table -->
-        <div class="dn-card p-2 mt-2">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <span class="small fw-bold text-uppercase text-secondary">
-              Markers <span class="badge bg-secondary ms-1">{{ boxes().length }}</span>
-            </span>
-            <button type="button" class="btn btn-sm btn-outline-secondary py-0" (click)="tableExpanded.set(!tableExpanded())">
-              {{ tableExpanded() ? 'Collapse' : 'Expand' }}
-            </button>
-          </div>
-
-          @if (tableExpanded()) {
-            @if (boxes().length > 0) {
-              <div class="table-responsive" style="max-height: 220px;">
-                <table class="table table-sm table-hover align-middle mb-0 small">
-                  <thead>
-                    <tr>
-                      <th>Signer</th>
-                      <th>Page</th>
-                      <th>X</th>
-                      <th>Y</th>
-                      <th>W</th>
-                      <th>H</th>
-                      <th>{{ selectedProvider() === 'all' ? 'NSDL Token' : activeProviderOption().label + ' Token' }}</th>
-                      <th class="text-end">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (box of boxes(); track box.id) {
-                      @let signer = signerFor(box.signerId);
-                      <tr [class.table-active]="selectedBoxId() === box.id">
-                        <td>
-                          @if (signer) {
-                            <span class="signer-swatch me-1" [style.background]="signer.color"></span>
-                            {{ signer.name }}
-                          }
-                        </td>
-                        <td class="font-mono">{{ box.page }}</td>
-                        <td class="font-mono">{{ Math.round(box.pdf.x) }}</td>
-                        <td class="font-mono">{{ Math.round(box.pdf.y) }}</td>
-                        <td class="font-mono">{{ Math.round(box.pdf.width) }}</td>
-                        <td class="font-mono">{{ Math.round(box.pdf.height) }}</td>
-                        <td class="font-mono text-secondary">{{ tokenForActiveProvider(box) }}</td>
-                        <td class="text-end text-nowrap">
-                          <button type="button" class="btn btn-sm btn-outline-secondary py-0 me-1" (click)="selectAndJumpToBox(box)">
-                            Go to page
-                          </button>
-                          <button type="button" class="btn btn-sm btn-outline-danger py-0" (click)="deleteBox(box.id)">
-                            <i class="bi bi-trash"></i>
-                          </button>
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            } @else {
-              <p class="small text-secondary mb-0">No signature boxes placed yet.</p>
-            }
-          }
         </div>
       }
     </div>
@@ -804,9 +806,26 @@ interface PointerGuide {
       border-radius: 3px;
       flex-shrink: 0;
     }
-    .viewer-host {
-      height: calc(100vh - 280px);
+    .workspace-split {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      min-height: 0;
+    }
+    .workspace-stage-col,
+    .workspace-inspector-col {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+    }
+    .stage-card,
+    .inspector-panel {
+      height: calc(100vh - 220px);
       min-height: 460px;
+    }
+    .viewer-host {
+      min-height: 0;
       overflow: auto;
       scrollbar-gutter: stable;
       background: rgba(100, 116, 139, 0.25);
@@ -815,14 +834,63 @@ interface PointerGuide {
       position: sticky;
       top: 0;
       z-index: 8;
-      margin-top: -8px;
+      margin-top: -4px;
       margin-bottom: -30px !important;
       pointer-events: auto;
     }
     .inspector-panel {
-      max-height: calc(100vh - 280px);
       overflow-y: auto;
       scrollbar-gutter: stable;
+      container-type: inline-size;
+      container-name: inspector;
+    }
+    .inspector-top-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .inspector-pane-exports {
+      border-top: 1px solid rgba(108, 117, 125, 0.25);
+      padding-top: 0.5rem;
+    }
+    .inspector-markers-table {
+      max-height: 280px;
+    }
+    @media (min-width: 992px) {
+      .workspace-split {
+        flex-direction: row;
+        flex: 1 1 0%;
+        min-height: 460px;
+      }
+      .workspace-stage-col {
+        flex: 0 0 auto;
+        width: clamp(340px, var(--stage-col-width, 798px), calc(100% - 380px));
+        max-width: calc(100% - 380px);
+      }
+      .workspace-inspector-col {
+        flex: 1 1 0%;
+      }
+      .stage-card,
+      .inspector-panel {
+        height: auto;
+        flex: 1 1 0%;
+        min-height: 460px;
+      }
+    }
+    @container inspector (min-width: 560px) {
+      .inspector-top-grid {
+        display: grid;
+        grid-template-columns: minmax(220px, 0.9fr) minmax(260px, 1.1fr);
+        gap: 0.75rem;
+        align-items: start;
+      }
+      .inspector-pane-exports {
+        border-top: none;
+        border-left: 1px solid rgba(108, 117, 125, 0.25);
+        padding-top: 0;
+        padding-left: 0.75rem;
+        height: 100%;
+      }
     }
     .page-stage {
       position: relative;
@@ -920,6 +988,7 @@ interface PointerGuide {
 })
 export class PdfSignatureCoordinatesComponent implements OnInit {
   @ViewChild('settingsModal') public settingsModal?: TemplateRef<unknown>;
+  private readonly workspaceGrid = viewChild<ElementRef<HTMLElement>>('workspaceGrid');
   private readonly viewerHost = viewChild<ElementRef<HTMLElement>>('viewerHost');
   private readonly pdfCanvas = viewChild<ElementRef<HTMLCanvasElement>>('pdfCanvas');
 
@@ -930,9 +999,9 @@ export class PdfSignatureCoordinatesComponent implements OnInit {
     private destroyRef: DestroyRef
   ) {
     effect(() => {
-      const hostEl = this.viewerHost()?.nativeElement;
-      if (hostEl && this.mode() === 'workspace') {
-        this.attachResizeObserver(hostEl);
+      const gridEl = this.workspaceGrid()?.nativeElement;
+      if (gridEl && this.mode() === 'workspace') {
+        this.attachResizeObserver(gridEl);
       }
     });
 
@@ -998,8 +1067,8 @@ export class PdfSignatureCoordinatesComponent implements OnInit {
   public docMeta = signal<PdfDocumentMeta | null>(null);
   public pageCount = signal(0);
   public currentPage = signal(1);
-  public zoom = signal(1);
-  public fitMode = signal<'none' | 'width'>('width');
+  public zoom = signal(1.25);
+  public fitMode = signal<'none' | 'width'>('none');
   public userRotation = signal(0);
   public pageInfos = signal<PdfPageInfo[]>([]);
   public containerWidth = signal(800);
@@ -1047,6 +1116,10 @@ export class PdfSignatureCoordinatesComponent implements OnInit {
   public readonly currentPageInfo = computed(
     () => this.pageInfos().find((p) => p.pageNumber === this.currentPage()) ?? null
   );
+  public readonly stageColumnWidthPx = computed(() => {
+    const renderedW = this.currentPageInfo()?.renderedWidth ?? 595 * this.zoom();
+    return Math.ceil(renderedW + 54);
+  });
   public readonly currentPageBoxes = computed(() =>
     this.boxes().filter((b) => b.page === this.currentPage())
   );
@@ -1216,7 +1289,8 @@ export class PdfSignatureCoordinatesComponent implements OnInit {
       this.pageCount.set(this.pdfDoc.numPages);
       this.currentPage.set(1);
       this.userRotation.set(0);
-      this.fitMode.set('width');
+      this.fitMode.set('none');
+      this.zoom.set(1.25);
       this.boxes.set([]);
       this.selectedBoxId.set(null);
       this.undoStack.set([]);
@@ -1741,6 +1815,8 @@ export class PdfSignatureCoordinatesComponent implements OnInit {
     this.undoStack.set([]);
     this.redoStack.set([]);
     this.placementMode.set(false);
+    this.fitMode.set('none');
+    this.zoom.set(1.25);
     this.mode.set('setup');
     await this.disposePdfDoc();
   }
@@ -1816,7 +1892,12 @@ export class PdfSignatureCoordinatesComponent implements OnInit {
     const page1 = await this.getPdfPage(1);
     if (this.fitMode() === 'width') {
       const base = this.computePageInfo(page1, 1);
-      const fitted = Math.max(0.35, Math.min(3, (this.containerWidth() - 48) / base.pdfWidth));
+      const gridWidth = this.workspaceGrid()?.nativeElement?.clientWidth ?? 0;
+      const availableWidth =
+        gridWidth > 420
+          ? Math.max(320, gridWidth - 388 - 54)
+          : Math.max(260, this.containerWidth() - 54);
+      const fitted = Math.max(0.35, Math.min(3, availableWidth / base.pdfWidth));
       this.zoom.set(fitted);
     }
     const infos: PdfPageInfo[] = [];

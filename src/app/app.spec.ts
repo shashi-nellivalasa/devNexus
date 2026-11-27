@@ -226,6 +226,8 @@ describe('DevNexus Application & Tool Engine Tests', () => {
       'PDF Signature Coordinate Generator'
     );
     expect(el.querySelector('app-tool-header i.bi-pen')).toBeTruthy();
+    expect(comp.zoom()).toBe(1.25);
+    expect(comp.fitMode()).toBe('none');
 
     comp.docMeta.set({ documentName: 'sample.pdf', pageCount: 12, fileSizeBytes: 1024 });
     comp.pageCount.set(12);
@@ -234,6 +236,8 @@ describe('DevNexus Application & Tool Engine Tests', () => {
 
     const pageInput = el.querySelector('[aria-label="Page navigation"] input[aria-label="Go to page"]') as HTMLInputElement;
     expect(pageInput).toBeTruthy();
+    expect(el.querySelector('.workspace-inspector-col .inspector-markers-section')).toBeTruthy();
+    expect(comp.stageColumnWidthPx()).toBe(Math.ceil(595 * 1.25 + 54));
 
     comp.pageJumpForm.patchValue({ page: 8 });
     comp.submitPageJump();
